@@ -1,0 +1,25 @@
+{
+  "name": "alloy-connectivity-demo",
+  "version": "1.0.0",
+  "description": "Demo application showcasing Alloy Connectivity API for iPaaS automation",
+  "main": "dist/demo.js",
+  "scripts": {
+    "start": "ts-node src/demo.ts",
+    "build": "tsc",
+    "dev": "ts-node src/demo.ts",
+    "test": "echo \"No tests configured yet\" && exit 0"
+  },
+  "keywords": ["alloy", "ipaas", "integration", "api", "connectivity", "automation"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "alloy-node": "^3.3.0",
+    "axios": "^1.13.2",
+    "dotenv": "^17.2.3"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}
