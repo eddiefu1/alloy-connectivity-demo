@@ -1,64 +1,66 @@
 declare module 'alloy-node' {
-  interface AlloyOptions {
-    apiKey: string;
+  interface CRMModule {
+    listContacts(): Promise<{ data?: any[] }>;
+    getContact(contactId: string): Promise<any>;
+    createContact(data: any): Promise<any>;
+    updateContact(contactId: string, data: any): Promise<any>;
+    listAccounts(): Promise<{ data?: any[] }>;
+    getAccount(accountId: string): Promise<any>;
+    createAccount(data: any): Promise<any>;
+    updateAccount(accountId: string, data: any): Promise<any>;
+    setUser(userId: string | null): void;
+    connect(connectionId: string | null): void;
+    setUrl(url: string): void;
   }
 
-  interface UserResponse {
-    token?: string;
-    userId?: string;
-    [key: string]: any;
+  interface CommerceModule {
+    setUser(userId: string | null): void;
+    connect(connectionId: string | null): void;
+    setUrl(url: string): void;
   }
 
-  interface DataGetParams {
-    userId: string;
-    integrationId: string;
-    entity: string;
+  interface AccountingModule {
+    setUser(userId: string | null): void;
+    connect(connectionId: string | null): void;
+    setUrl(url: string): void;
   }
 
-  interface DataCreateParams {
-    userId: string;
-    integrationId: string;
-    entity: string;
-    data: any;
+  interface WebhooksModule {
+    setUser(userId: string | null): void;
+    connect(connectionId: string | null): void;
+    setUrl(url: string): void;
   }
 
-  interface DataUpdateParams {
-    userId: string;
-    integrationId: string;
-    entity: string;
-    recordId: string;
-    data: any;
+  interface UserModule {
+    // Add user module methods as needed
   }
 
-  interface ConnectionParams {
-    userId: string;
-    integrationId: string;
+  export class UAPI {
+    constructor(apiKey: string);
+    
+    // Properties
+    headers: Record<string, string>;
+    username: string | null;
+    userId: string | null;
+    connectionId: string | null;
+    url: string;
+    
+    // Modules
+    CRM: CRMModule;
+    Commerce: CommerceModule;
+    Accounting: AccountingModule;
+    Webhooks: WebhooksModule;
+    User: UserModule;
+    
+    // Methods
+    identify(username: string): Promise<void>;
+    connect(connectionId: string): Promise<void>;
+    setRegion(region: string): void;
+    getDomain(region: string): string;
+    clear(): void;
   }
 
-  interface AlloyClient {
-    users: {
-      getUser(userId: string): Promise<UserResponse>;
-    };
-    integrations: {
-      list(): Promise<any[]>;
-    };
-    data: {
-      get(params: DataGetParams): Promise<{ data?: any[] }>;
-      create(params: DataCreateParams): Promise<any>;
-      update(params: DataUpdateParams): Promise<any>;
-    };
-    connections: {
-      get(params: ConnectionParams): Promise<{ status?: string }>;
-    };
+  export class Embedded {
+    constructor(options: any);
   }
-
-  class Alloy {
-    constructor(options: AlloyOptions);
-    users: AlloyClient['users'];
-    integrations: AlloyClient['integrations'];
-    data: AlloyClient['data'];
-    connections: AlloyClient['connections'];
-  }
-
-  export default Alloy;
 }
