@@ -16,8 +16,8 @@ async function runDemo() {
     const config = getConfig();
     console.log(`\n📋 Configuration loaded:`);
     console.log(`   Base URL: ${config.alloyBaseUrl}`);
-    console.log(`   User ID: ${config.alloyUserId}`);
-    console.log(`   API Key: ${config.alloyApiKey.substring(0, 10)}...`);
+    console.log(`   User ID: [CONFIGURED]`);
+    console.log(`   API Key: [CONFIGURED]`);
 
     // Initialize Alloy client
     const alloyClient = new AlloyClient(config);

@@ -16,14 +16,14 @@ export class AlloyClient {
    */
   async authenticateUser(username: string): Promise<void> {
     try {
-      console.log(`Authenticating user ${username}...`);
+      console.log('Authenticating user...');
       
       // Identify the user with Alloy
       await this.client.identify(username);
       
       console.log('✓ User authenticated successfully');
-      console.log(`  User ID: ${this.client.userId}`);
-      console.log(`  Username: ${this.client.username}`);
+      console.log(`  User ID: ${this.client.userId ? '[SET]' : '[NOT SET]'}`);
+      console.log(`  Username: ${this.client.username ? '[SET]' : '[NOT SET]'}`);
     } catch (error: any) {
       console.error('Authentication failed:', error);
       throw error;
