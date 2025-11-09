@@ -3,7 +3,9 @@ import { getConfig } from './config.js';
 
 /**
  * Notion-specific client using Alloy Connectivity API
- * This client uses the correct Alloy API endpoints for Notion operations
+ * 
+ * This client uses the Alloy Connectivity API endpoint pattern:
+ * POST /connectors/{connectorId}/actions/{actionId}/execute
  */
 export class NotionClient {
   private client: AxiosInstance;
@@ -15,7 +17,7 @@ export class NotionClient {
     this.config = config;
     this.connectionId = connectionId;
     
-    // Use production.runalloy.com for executing actions (same base URL as OAuth endpoints)
+    // Use production.runalloy.com for executing actions
     this.client = axios.create({
       baseURL: 'https://production.runalloy.com',
       headers: {
@@ -29,7 +31,7 @@ export class NotionClient {
 
   /**
    * Execute a Notion action via Alloy Connectivity API
-   * Endpoint pattern: POST /connectors/{connectorId}/actions/{actionId}/execute
+   * Endpoint pattern: POST /connectors/notion/actions/{actionId}/execute
    */
   private async executeAction(
     actionId: string,
@@ -40,22 +42,21 @@ export class NotionClient {
     } = {}
   ): Promise<any> {
     try {
-      // Alloy Connectivity API endpoint pattern for executing actions
-      // Pattern: POST https://api.runalloy.com/connectors/{connectorId}/actions/{actionId}/execute
       let path = `/connectors/notion/actions/${actionId}/execute`;
       
-      // Replace path parameters in actionId if needed (e.g., retrieve-a-page uses {page_id})
+      // Replace path parameters in actionId if needed
       if (parameters.pathParams) {
         Object.entries(parameters.pathParams).forEach(([key, value]) => {
-          // Some actions have path params that need to be in the URL
           path = path.replace(`{${key}}`, value);
         });
       }
 
-      // Build the request body according to Alloy Connectivity API structure
-      // Pattern: { credentialId, requestBody, headers }
+      // Build request body according to Alloy Connectivity API structure
       const requestBody: any = {
         credentialId: this.connectionId,
+        headers: {
+          'Notion-Version': '2022-06-28',
+        },
       };
 
       // Add the actual Notion API request body
@@ -63,7 +64,7 @@ export class NotionClient {
         requestBody.requestBody = parameters.requestBody;
       }
 
-      // Add path parameters if any (for actions that require IDs in the path)
+      // Add path parameters if any
       if (parameters.pathParams && Object.keys(parameters.pathParams).length > 0) {
         requestBody.pathParams = parameters.pathParams;
       }
@@ -73,11 +74,6 @@ export class NotionClient {
         requestBody.queryParameters = parameters.queryParameters;
       }
 
-      // Add Notion-Version header requirement
-      requestBody.headers = {
-        'Notion-Version': '2022-06-28',
-      };
-
       // Make the request to Alloy's API
       const response = await this.client.post(path, requestBody);
       
@@ -85,9 +81,8 @@ export class NotionClient {
       return response.data.data || response.data;
     } catch (error: any) {
       console.error(`Failed to execute action ${actionId}:`, error.message);
-      if (error.response) {
-        console.error('Response status:', error.response.status);
-        console.error('Response data:', JSON.stringify(error.response.data, null, 2));
+      if (error.response?.data) {
+        console.error('API Error:', JSON.stringify(error.response.data, null, 2));
       }
       throw error;
     }
@@ -98,8 +93,6 @@ export class NotionClient {
    */
   async searchPages(query?: string, filter?: { value: 'page' | 'database'; property: 'object' }): Promise<any[]> {
     try {
-      console.log(`\n🔍 Searching for pages in Notion...`);
-      
       const requestBody: any = {};
       if (query) {
         requestBody.query = query;
@@ -116,9 +109,6 @@ export class NotionClient {
 
       const response = await this.executeAction('post-search', {
         requestBody,
-        additionalHeaders: {
-          'x-alloy-credentialId': this.connectionId,
-        },
       });
 
       return response.results || [];
@@ -133,14 +123,9 @@ export class NotionClient {
    */
   async getPage(pageId: string): Promise<any> {
     try {
-      console.log(`\n📄 Retrieving page ${pageId}...`);
-      
       const response = await this.executeAction('retrieve-a-page', {
         pathParams: {
           page_id: pageId,
-        },
-        additionalHeaders: {
-          'x-alloy-credentialId': this.connectionId,
         },
       });
 
@@ -162,17 +147,10 @@ export class NotionClient {
     cover?: any;
   }): Promise<any> {
     try {
-      console.log(`\n✍️  Creating new page in Notion...`);
-      console.log('Page data:', JSON.stringify(pageData, null, 2));
-
       const response = await this.executeAction('post-page', {
         requestBody: pageData,
-        additionalHeaders: {
-          'x-alloy-credentialId': this.connectionId,
-        },
       });
 
-      console.log(`✓ Successfully created page: ${response.id}`);
       return response;
     } catch (error: any) {
       console.error('Failed to create page:', error.message);
@@ -193,20 +171,13 @@ export class NotionClient {
     cover?: any;
   }): Promise<any> {
     try {
-      console.log(`\n🔄 Updating page ${pageId}...`);
-      console.log('Updates:', JSON.stringify(updates, null, 2));
-
       const response = await this.executeAction('patch-page', {
         pathParams: {
           page_id: pageId,
         },
         requestBody: updates,
-        additionalHeaders: {
-          'x-alloy-credentialId': this.connectionId,
-        },
       });
 
-      console.log(`✓ Successfully updated page: ${response.id}`);
       return response;
     } catch (error: any) {
       console.error('Failed to update page:', error.message);
@@ -222,16 +193,11 @@ export class NotionClient {
    */
   async queryDatabase(databaseId: string, query?: any): Promise<any[]> {
     try {
-      console.log(`\n📊 Querying database ${databaseId}...`);
-      
       const response = await this.executeAction('post-database-query', {
         pathParams: {
           database_id: databaseId,
         },
         requestBody: query || {},
-        additionalHeaders: {
-          'x-alloy-credentialId': this.connectionId,
-        },
       });
 
       return response.results || [];
@@ -246,14 +212,9 @@ export class NotionClient {
    */
   async getDatabase(databaseId: string): Promise<any> {
     try {
-      console.log(`\n📋 Retrieving database ${databaseId}...`);
-      
       const response = await this.executeAction('retrieve-a-database', {
         pathParams: {
           database_id: databaseId,
-        },
-        additionalHeaders: {
-          'x-alloy-credentialId': this.connectionId,
         },
       });
 
@@ -264,4 +225,3 @@ export class NotionClient {
     }
   }
 }
-

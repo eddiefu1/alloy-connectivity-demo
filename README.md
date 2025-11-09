@@ -199,7 +199,7 @@ The server provides the following endpoints:
 - `POST /api/oauth/initiate` - Initiate OAuth flow
 - `GET /oauth/callback` - OAuth callback handler
 - `GET /api/connectors` - List available connectors
-- `POST /api/alloy/token` - Generate JWT token (optional)
+- `GET /api/connections` - List all connections
 
 ## 🔧 API Reference
 
