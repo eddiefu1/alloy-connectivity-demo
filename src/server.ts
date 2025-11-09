@@ -816,34 +816,6 @@ app.get('/api/connections/:connectionId', async (req: Request, res: Response) =>
 });
 
 /**
- * Check for Notion connections (helper endpoint)
- * GET /api/connections/notion/check
- */
-app.get('/api/connections/notion/check', async (req: Request, res: Response) => {
-  try {
-    console.log('\n🔍 Checking for Notion connections...');
-    const connections = await oauthFlow.listConnections();
-    const notionConnections = connections.filter((conn: any) => 
-      conn.connectorId === 'notion' || conn.integrationId === 'notion'
-    );
-    
-    res.json({
-      success: true,
-      connections: notionConnections,
-      count: notionConnections.length,
-      allConnections: connections.length
-    });
-  } catch (error: any) {
-    console.error('Error checking Notion connections:', error.message);
-    res.status(500).json({
-      success: false,
-      error: error.message,
-      details: error.response?.data
-    });
-  }
-});
-
-/**
  * List available connectors/integrations
  * GET /api/connectors
  */
