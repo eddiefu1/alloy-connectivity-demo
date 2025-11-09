@@ -351,8 +351,65 @@ app.listen(3000, () => {
 
 Alloy provides two ways to interact with the API:
 
-1. **Node.js SDK** (Recommended for Node.js applications)
-2. **REST API** (For any language or framework)
+1. **REST API** (For connector-specific actions - Recommended for Notion)
+2. **Node.js SDK** (For Unified API operations)
+
+### Endpoint Pattern for Connector Actions
+
+For connector-specific actions (like Notion), use the REST API with the following pattern:
+
+**Base URL**: `https://production.runalloy.com`
+
+**Endpoint Pattern**: 
+```
+POST /connectors/{connectorId}/actions/{actionId}/execute
+```
+
+**Request Body Structure**:
+```json
+{
+  "credentialId": "credential_id_from_oauth_or_credentials_list",
+  "requestBody": {
+    // Connector-specific request body (e.g., Notion API request)
+  },
+  "headers": {
+    // Connector-specific headers (e.g., "Notion-Version": "2022-06-28")
+  },
+  "pathParams": {
+    // Optional: Path parameters for actions with IDs in URL
+  },
+  "queryParameters": {
+    // Optional: Query parameters
+  }
+}
+```
+
+**Example: Notion Search Pages**
+```typescript
+POST https://production.runalloy.com/connectors/notion/actions/post-search/execute
+
+Headers:
+  Authorization: Bearer {apiKey}
+  x-api-version: 2025-09
+  Content-Type: application/json
+
+Body:
+{
+  "credentialId": "your_credential_id",
+  "requestBody": {
+    "filter": {
+      "value": "page",
+      "property": "object"
+    },
+    "page_size": 10
+  },
+  "headers": {
+    "Notion-Version": "2022-06-28"
+  }
+}
+```
+
+For more examples, see `docs/endpoint-pattern-summary.md`.
 
 ### Using the Node.js SDK
 
