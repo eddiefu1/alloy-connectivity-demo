@@ -77,7 +77,39 @@ npm run build
 npm start
 ```
 
-## Step 5: Expected Output
+## Step 5: Test Your Setup
+
+### Test API Authentication
+
+Before running the demo, test your API key:
+
+```bash
+npm run test-api-auth
+```
+
+This will verify that your API key is working correctly.
+
+### Find Existing Connections
+
+If you already have Notion connections, find them:
+
+```bash
+npm run find-notion-connection
+```
+
+This will list all your Notion connections and suggest a connection ID to use.
+
+### Test Notion Connection
+
+Test your connection to Notion:
+
+```bash
+npm run test-notion-connection
+```
+
+This will verify that your connection ID works for API calls.
+
+## Step 6: Run the Demo
 
 When you run the demo successfully, you should see output similar to:
 
@@ -85,18 +117,36 @@ When you run the demo successfully, you should see output similar to:
 🚀 Starting Alloy Connectivity API Demo
 
 ==================================================
-📋 Configuration loaded:
-   Base URL: https://api.runalloy.com
-   User ID: usr_123abc...
-   API Key: key_456def...
-
-==================================================
 STEP 1: Authentication Flow
 ==================================================
-Authenticating user usr_123abc for integration notion...
-✓ User authenticated successfully
+✓ API Key configured: TWsxXkP4On...
+✓ User ID: 690674c276dcda35a40b242d
+✓ Connection ID: 6911017b4d2bcbfd4ce727fe
 
-...
+STEP 2: Connect to Integration
+==================================================
+   Testing connection: 6911017b4d2bcbfd4ce727fe
+✓ Connection verified and working!
+✓ Connection ID: 6911017b4d2bcbfd4ce727fe
+✓ API calls are functional
+
+STEP 3: Read Data - Fetch Pages
+==================================================
+✓ Successfully read 0 page records
+   No pages found in your Notion workspace
+
+STEP 4: Write Data - Create New Page
+==================================================
+✅ Page created successfully!
+   Page ID: 2a6445ce-1cdc-81a0-b142-fbeaf3c972a5
+   URL: https://www.notion.so/Project-Planning-Created-via-Alloy-API-2a6445ce1cdc81a0b142fbeaf3c972a5
+
+STEP 5: Update Data - Update Existing Page
+==================================================
+   Using newly created page: 2a6445ce-1cdc-81a0-b142-fbeaf3c972a5
+✅ Page updated successfully!
+   Updated page ID: 2a6445ce-1cdc-81a0-b142-fbeaf3c972a5
+   Updated URL: https://www.notion.so/Project-Planning-Created-via-Alloy-API-2a6445ce1cdc81a0b142fbeaf3c972a5
 ```
 
 ## Troubleshooting
@@ -110,7 +160,7 @@ Authenticating user usr_123abc for integration notion...
 2. Verify the file contains `ALLOY_API_KEY` and `ALLOY_USER_ID`
 3. Check there are no extra spaces around the `=` sign
 
-### "Authentication failed"
+### "Authentication failed" or "Invalid Authorization"
 
 **Problem**: Invalid API credentials or network issues.
 
@@ -118,18 +168,23 @@ Authenticating user usr_123abc for integration notion...
 1. Verify your API key is correct and hasn't been revoked
 2. Check your User ID is correct
 3. Ensure you have internet connectivity
-4. Try regenerating your API key in the Alloy dashboard
+4. Test your API key: `npm run test-api-auth`
+5. Verify you're using the correct base URL: `https://production.runalloy.com`
+6. Check [API Key Setup Guide](docs/api-key-setup.md) for detailed troubleshooting
+7. Try regenerating your API key in the Alloy dashboard
+8. Ensure your API key has Connectivity API permissions
 
-### "Connection not yet established"
+### "Connection not yet established" or "Credential not found"
 
-**Problem**: The integration hasn't been connected yet.
+**Problem**: The integration hasn't been connected yet or the connection ID is invalid.
 
-**Solution**: This is normal if you haven't set up an integration yet. The demo will show you what would happen when a connection exists. To fully test:
-1. Go to Alloy Dashboard → Connections
-2. Select an integration (e.g., Notion)
-3. Click "Connect" and follow the OAuth flow
-4. Get the Connection ID and add it to your `.env` file
-5. Run the demo again
+**Solutions**:
+1. **Find existing connections**: Run `npm run find-notion-connection` to see your connections
+2. **Create a new connection**: Run `npm run connect-notion` to create a new OAuth connection
+3. **Test your connection**: Run `npm run test-notion-connection` to verify it works
+4. **Verify connection ID**: Make sure the Connection ID in your `.env` file is correct
+5. **Check connection in dashboard**: Go to Alloy Dashboard → Connections to verify
+6. **Use a working connection**: Some connection IDs work for API calls even if not in the list
 
 ### Module not found errors
 

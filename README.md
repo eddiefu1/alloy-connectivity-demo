@@ -354,7 +354,8 @@ const { connectionId } = await oauthFlow.handleOAuthCallback(
 | `ALLOY_API_KEY` | Yes | Your Alloy API key (get from [Alloy Dashboard](https://app.runalloy.com)) |
 | `ALLOY_USER_ID` | Yes | Your Alloy user ID (get from [Alloy Dashboard](https://app.runalloy.com)) |
 | `CONNECTION_ID` | Yes* | Connection ID after OAuth flow (obtained after connecting Notion) |
-| `ALLOY_BASE_URL` | No | API base URL (default: `https://api.runalloy.com`) |
+| `ALLOY_BASE_URL` | No | API base URL (default: `https://production.runalloy.com`) |
+| `ALLOY_ENVIRONMENT` | No | Environment: `development` or `production` (default: `production`) |
 
 \* Required for data operations. Get it after completing the OAuth flow.
 
