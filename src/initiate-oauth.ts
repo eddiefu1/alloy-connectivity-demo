@@ -25,12 +25,9 @@ async function initiateOAuthInteractive() {
     console.log('🔐 Alloy OAuth Flow Initiator\n');
     console.log('This script will help you create a connection via OAuth flow.\n');
 
-    // Get connector ID
-    const connectorId = await question('Enter connector ID (e.g., notion, hubspot): ');
-    if (!connectorId) {
-      console.error('❌ Connector ID is required');
-      process.exit(1);
-    }
+    // Get connector ID (default to notion)
+    const connectorIdInput = await question('Enter connector ID (default: notion): ');
+    const connectorId = connectorIdInput.trim() || 'notion';
 
     // Get redirect URI
     const redirectUri = await question('Enter redirect URI (e.g., http://localhost:3000/oauth/callback): ');

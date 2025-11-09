@@ -305,13 +305,7 @@ const { connectionId } = await oauthFlow.handleOAuthCallback(
 
 ## 🔌 Supported Integrations
 
-This demo uses **Notion** as an example, but Alloy supports **200+ integrations**:
-
-- **Productivity**: Notion, Airtable, Google Workspace
-- **CRM**: Salesforce, HubSpot, Pipedrive
-- **Marketing**: Mailchimp, SendGrid, Klaviyo
-- **E-commerce**: Shopify, WooCommerce, BigCommerce
-- And many more!
+This demo focuses on **Notion** integration. Alloy supports 200+ integrations, and you can extend this demo to work with other connectors by following the same patterns.
 
 ## 🛠️ Development
 

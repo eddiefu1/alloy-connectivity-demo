@@ -26,9 +26,9 @@ export class AlloyOAuthFlow {
   }
 
   /**
-   * Initiate OAuth flow for a connector (e.g., Notion, HubSpot, etc.)
+   * Initiate OAuth flow for a connector
    * 
-   * @param connectorId - The ID of the connector (e.g., 'notion', 'hubspot')
+   * @param connectorId - The ID of the connector (e.g., 'notion')
    * @param redirectUri - The URI to redirect to after OAuth completes
    * @returns OAuth URL that the user should be redirected to
    */

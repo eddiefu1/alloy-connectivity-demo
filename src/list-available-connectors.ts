@@ -117,13 +117,8 @@ async function listAvailableIntegrations() {
     // Summary
     console.log('📝 Summary:');
     console.log('─'.repeat(50));
-    console.log('• Available Connector: Notion (via MCP Alloy)');
-    console.log('• Alloy supports 200+ integrations including:');
-    console.log('  - Productivity: Notion, Airtable, Google Workspace');
-    console.log('  - CRM: Salesforce, HubSpot, Pipedrive, Zoho CRM');
-    console.log('  - Marketing: Mailchimp, SendGrid, Klaviyo');
-    console.log('  - E-commerce: Shopify, WooCommerce, BigCommerce');
-    console.log('  - Support: Zendesk, Intercom, Freshdesk');
+    console.log('• Available Connector: Notion');
+    console.log('• This demo focuses on Notion integration');
     console.log('');
     console.log('💡 To see all available connectors for your account:');
     console.log('   Visit https://app.runalloy.com and check the Connections page');
