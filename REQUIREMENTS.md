@@ -156,10 +156,11 @@ The README includes:
 ### Documentation
 
 Additional documentation in `docs/` folder:
-- `backend-server-guide.md` - Server setup
-- `oauth-flow-guide.md` - OAuth implementation
-- `getting-connection-id.md` - Connection ID guide
-- `troubleshooting.md` - Common issues
+- `developer-guide.md` - Comprehensive development guide
+- `quick-reference.md` - Quick reference for common tasks
+- `endpoint-pattern-summary.md` - API endpoint patterns
+- `SETUP.md` - Detailed setup instructions with troubleshooting
+- `EXAMPLES.md` - Usage examples and code samples
 
 ## 📋 Summary
 

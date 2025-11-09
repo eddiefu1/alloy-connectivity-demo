@@ -354,10 +354,11 @@ alloy-connectivity-demo/
 
 ## 📚 Documentation
 
-- [Backend Server Guide](docs/backend-server-guide.md) - Server setup and API endpoints
-- [OAuth Flow Guide](docs/oauth-flow-guide.md) - Complete OAuth implementation
-- [Getting Connection ID](docs/getting-connection-id.md) - How to get connection IDs
-- [Troubleshooting](docs/troubleshooting.md) - Common issues and solutions
+- [Developer Guide](docs/developer-guide.md) - Comprehensive development guide
+- [Quick Reference](docs/quick-reference.md) - Quick reference for common tasks
+- [Endpoint Pattern Summary](docs/endpoint-pattern-summary.md) - API endpoint patterns
+- [Setup Guide](SETUP.md) - Detailed setup instructions with troubleshooting
+- [Examples](EXAMPLES.md) - Usage examples and code samples
 
 ## 🐛 Troubleshooting
 
