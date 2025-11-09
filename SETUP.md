@@ -17,10 +17,10 @@ This guide will walk you through setting up the Alloy Connectivity Demo step by 
    - Copy your User ID from the dashboard
 
 3. **Set Up an Integration (Optional for Full Demo)**
-   - Go to **Integrations** in the Alloy dashboard
-   - Select an integration (e.g., Salesforce, HubSpot)
+   - Go to **Connections** in the Alloy dashboard
+   - Select an integration (e.g., Notion)
    - Follow the OAuth flow to connect your account
-   - Note the Integration ID for your `.env` file
+   - Note the Connection ID for your `.env` file
 
 ## Step 2: Install Dependencies
 
@@ -54,7 +54,7 @@ npm install
    ```env
    ALLOY_API_KEY=your_actual_api_key_here
    ALLOY_USER_ID=your_actual_user_id_here
-   INTEGRATION_ID=salesforce
+   CONNECTION_ID=your_connection_id_here
    ```
 
 ## Step 4: Run the Demo
@@ -93,7 +93,7 @@ When you run the demo successfully, you should see output similar to:
 ==================================================
 STEP 1: Authentication Flow
 ==================================================
-Authenticating user usr_123abc for integration salesforce...
+Authenticating user usr_123abc for integration notion...
 ✓ User authenticated successfully
 
 ...
@@ -125,10 +125,11 @@ Authenticating user usr_123abc for integration salesforce...
 **Problem**: The integration hasn't been connected yet.
 
 **Solution**: This is normal if you haven't set up an integration yet. The demo will show you what would happen when a connection exists. To fully test:
-1. Go to Alloy Dashboard → Integrations
-2. Select an integration (e.g., Salesforce)
+1. Go to Alloy Dashboard → Connections
+2. Select an integration (e.g., Notion)
 3. Click "Connect" and follow the OAuth flow
-4. Run the demo again
+4. Get the Connection ID and add it to your `.env` file
+5. Run the demo again
 
 ### Module not found errors
 
@@ -155,10 +156,10 @@ npm run build
 
 Once you have the basic demo running:
 
-1. **Customize the Integration**: Change the `INTEGRATION_ID` in `.env` to use different integrations
-2. **Modify the Data**: Edit the contact data in `src/demo.ts` to sync different information
-3. **Add More Operations**: Explore the `AlloyClient` class to add more CRUD operations
-4. **Build Your Own Integration**: Use this as a template for your own iPaaS automation
+1. **Customize the Integration**: Change the `CONNECTION_ID` in `.env` to use different Notion workspaces
+2. **Modify the Data**: Edit the page data in `src/demo.ts` to sync different information
+3. **Add More Operations**: Explore the `AlloyClient` class to add more CRUD operations for pages and databases
+4. **Build Your Own Integration**: Use this as a template for your own iPaaS automation with Notion
 
 ## Additional Resources
 

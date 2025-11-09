@@ -3,21 +3,48 @@
   "version": "1.0.0",
   "description": "Demo application showcasing Alloy Connectivity API for iPaaS automation",
   "main": "dist/demo.js",
+  "type": "module",
   "scripts": {
-    "start": "ts-node src/demo.ts",
+    "start": "node --loader ts-node/esm src/demo.ts",
     "build": "tsc",
-    "dev": "ts-node src/demo.ts",
+    "dev": "node --loader ts-node/esm src/demo.ts",
+    "server": "node --loader ts-node/esm src/server.ts",
+    "list-connections": "node --loader ts-node/esm src/list-connections.ts",
+    "list-connectors": "node --loader ts-node/esm src/list-available-connectors.ts",
+    "initiate-oauth": "node --loader ts-node/esm src/initiate-oauth.ts",
+    "test-oauth": "node --loader ts-node/esm src/test-oauth-flow.ts",
+    "connect-notion": "node --loader ts-node/esm src/connect-notion.ts",
+    "get-jwt-token": "node --loader ts-node/esm src/get-jwt-token.ts",
     "test": "echo \"No tests configured yet\" && exit 0"
   },
-  "keywords": ["alloy", "ipaas", "integration", "api", "connectivity", "automation"],
+  "keywords": [
+    "alloy",
+    "ipaas",
+    "integration",
+    "api",
+    "connectivity",
+    "automation",
+    "oauth",
+    "notion",
+    "data-sync"
+  ],
   "author": "",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eddiefu1/alloy-connectivity-demo.git"
+  },
   "dependencies": {
+    "alloy-frontend": "^2.1.1",
     "alloy-node": "^3.3.0",
     "axios": "^1.13.2",
-    "dotenv": "^17.2.3"
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.5",
     "@types/node": "^24.10.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"

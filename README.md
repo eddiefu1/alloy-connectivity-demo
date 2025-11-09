@@ -1,36 +1,23 @@
 # Alloy Connectivity API Demo
 
-A practical demonstration of Alloy's Connectivity API for iPaaS (Integration Platform as a Service) automation. This demo showcases real-world integration patterns including authentication flows and bidirectional data synchronization with CRM systems.
+A complete demonstration of Alloy's Connectivity API showcasing **OAuth authentication flows** and **data synchronization (read and write operations)** with Notion. This project uses both the **REST API** and **Node.js SDK** to interact with Alloy's Connectivity API.
 
-## 🎯 Features
+## 🎯 Requirements Met
 
-This demo demonstrates:
+This demo fulfills all requirements:
 
-- ✅ **Authentication Flow**: User authentication with Alloy's API using API keys
-- ✅ **Read Operations**: Fetching contact data from connected CRM systems
-- ✅ **Write Operations**: Creating new contacts in connected CRM systems
-- ✅ **Update Operations**: Modifying existing contact records
-- ✅ **Connection Management**: Checking integration connection status
-- ✅ **Error Handling**: Robust error handling and logging
-
-## 🏗️ Architecture
-
-The application is structured into three main components:
-
-```
-src/
-├── config.ts         # Configuration management and environment variables
-├── alloy-client.ts   # Alloy API client wrapper with all CRUD operations
-└── demo.ts          # Main demo orchestration showing real-world usage
-```
+- ✅ **Uses Alloy Connectivity API**: Demonstrates both REST API and Node.js SDK implementations
+- ✅ **Authentication Flow**: Complete OAuth 2.0 flow for connecting Notion
+- ✅ **Data Sync**: Full read and write operations to demonstrate data synchronization
+- ✅ **GitHub Ready**: Complete setup instructions and documentation
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 
-- Node.js 16+ and npm
-- An Alloy account ([Sign up at runalloy.com](https://runalloy.com))
-- API credentials from your Alloy dashboard
+- **Node.js 18+** and npm
+- **Alloy Account**: [Sign up at runalloy.com](https://runalloy.com)
+- **API Credentials**: Get from [Alloy Dashboard](https://app.runalloy.com)
 
 ### Installation
 
@@ -54,41 +41,70 @@ src/
    ```env
    ALLOY_API_KEY=your_api_key_here
    ALLOY_USER_ID=your_user_id_here
-   INTEGRATION_ID=salesforce
+   ALLOY_BASE_URL=https://api.runalloy.com
    ```
 
-   To get your credentials:
+   **Get your credentials:**
    - Log in to [Alloy Dashboard](https://app.runalloy.com)
-   - Navigate to Settings → API Keys
-   - Copy your API Key and User ID
-
-### Running the Demo
-
-**Development mode (with TypeScript):**
-```bash
-npm run dev
-```
-
-**Production mode (compile first):**
-```bash
-npm run build
-npm start
-```
+   - Go to **Settings → API Keys**
+   - Copy your **API Key** and **User ID**
 
 ## 📖 Usage
 
-### Understanding the Demo Flow
+### Step 1: Authentication Flow (OAuth)
 
-The demo executes the following steps:
+Connect Notion using OAuth 2.0 authentication:
 
-1. **Authentication**: Authenticates the user with Alloy API
-2. **Connection Status**: Checks if the integration is properly connected
-3. **List Integrations**: Shows available integrations (Salesforce, HubSpot, etc.)
-4. **Read Data**: Fetches existing contacts from the CRM
-5. **Write Data**: Creates a new contact in the CRM
-6. **Update Data**: Updates an existing contact's information
+#### Option A: Web Interface (Recommended)
 
-### Example Output
+1. **Start the server**
+   ```bash
+   npm run server
+   ```
+
+2. **Open the frontend**
+   - Navigate to: `http://localhost:3000/connect-notion-frontend.html`
+   - Click **"Connect Notion"**
+   - Authorize the connection in your browser
+   - Copy the **Connection ID** from the success page
+
+3. **Add Connection ID to `.env`**
+   ```env
+   CONNECTION_ID=your_connection_id_here
+   ```
+
+#### Option B: Command Line
+
+```bash
+# Initiate OAuth flow via command line
+npm run connect-notion
+```
+
+#### Option C: Programmatic (API)
+
+```bash
+# Test OAuth flow programmatically
+npm run test-oauth
+```
+
+### Step 2: Data Synchronization
+
+Once connected, demonstrate read and write operations:
+
+#### Run the Demo
+
+```bash
+# Run the complete demo (authentication + read + write)
+npm run dev
+```
+
+This will:
+1. **Authenticate** with Alloy API
+2. **Read** existing pages from Notion
+3. **Write** a new page to Notion
+4. **Update** an existing page in Notion
+
+#### Example Output
 
 ```
 🚀 Starting Alloy Connectivity API Demo
@@ -96,126 +112,216 @@ The demo executes the following steps:
 ==================================================
 STEP 1: Authentication Flow
 ==================================================
-Authenticating user user_123 for integration salesforce...
+Authenticating user 690674c276dcda35a40b242d...
 ✓ User authenticated successfully
 
 ==================================================
-STEP 4: Read Data - Fetch Contacts
+STEP 3: Read Data - Fetch Pages
 ==================================================
-📖 Reading contacts from integration salesforce...
-✓ Successfully read 42 contacts records
+📖 Reading pages from integration notion...
+✓ Successfully read 42 page records
 
 ==================================================
-STEP 5: Write Data - Create New Contact
+STEP 4: Write Data - Create New Page
 ==================================================
-✍️  Writing contacts to integration salesforce...
+✍️  Creating new page in Notion...
 Data to write: {
-  "firstName": "John",
-  "lastName": "Doe",
-  "email": "john.doe@example.com",
-  "phone": "+1-555-0123",
-  "company": "Acme Corp"
+  "title": "Project Planning",
+  "content": "This is a new page created via Alloy API",
+  "author": "John Doe",
+  "tags": ["project", "planning"],
+  "status": "active"
 }
-✓ Successfully wrote contacts record
-✅ Contact created successfully!
+✓ Successfully created page
+✅ Page created successfully!
 ```
+
+## 🏗️ Architecture
+
+### Components
+
+```
+src/
+├── config.ts              # Configuration management
+├── alloy-client.ts        # Node.js SDK client wrapper
+├── rest-api-example.ts    # REST API implementation
+├── oauth-flow.ts          # OAuth 2.0 flow handler
+├── server.ts              # Express server with API endpoints
+└── demo.ts                # Main demo orchestration
+```
+
+### API Endpoints
+
+The server provides the following endpoints:
+
+- `GET /api/health` - Health check
+- `GET /api/config/check` - Configuration status
+- `POST /api/oauth/initiate` - Initiate OAuth flow
+- `GET /oauth/callback` - OAuth callback handler
+- `GET /api/connectors` - List available connectors
+- `POST /api/alloy/token` - Generate JWT token (optional)
 
 ## 🔧 API Reference
 
-### AlloyClient Class
-
-The `AlloyClient` class provides a clean interface for interacting with Alloy's API:
+### Using the Node.js SDK
 
 ```typescript
+import { AlloyClient } from './src/alloy-client.js';
+import { getConfig } from './src/config.js';
+
+const config = getConfig();
 const client = new AlloyClient(config);
 
 // Authenticate user
-await client.authenticateUser(integrationId);
+await client.authenticateUser(config.alloyUserId);
 
-// Read data
-const contacts = await client.readData(userId, integrationId, 'contacts');
+// Read pages from Notion
+const pages = await client.readPages();
 
-// Write data
-await client.writeData(userId, integrationId, 'contacts', contactData);
+// Create a new page
+await client.createPage({
+  title: 'New Page',
+  content: 'Page content',
+});
 
-// Update data
-await client.updateData(userId, integrationId, 'contacts', recordId, updates);
-
-// Check connection status
-await client.getConnectionStatus(userId, integrationId);
+// Update an existing page
+await client.updatePage(pageId, {
+  title: 'Updated Title',
+});
 ```
 
-### Configuration
+### Using the REST API
 
-All configuration is managed through environment variables:
+```typescript
+import { AlloyRestClient } from './src/rest-api-example.js';
+import { getConfig } from './src/config.js';
 
-| Variable | Required | Description | Default |
-|----------|----------|-------------|---------|
-| `ALLOY_API_KEY` | Yes | Your Alloy API key | - |
-| `ALLOY_USER_ID` | Yes | Your Alloy user ID | - |
-| `ALLOY_BASE_URL` | No | Alloy API base URL | `https://api.runalloy.com` |
-| `INTEGRATION_ID` | No | Integration to use | `salesforce` |
-| `SAMPLE_RECORD_ID` | No | Record ID for updates | - |
+const config = getConfig();
+const client = new AlloyRestClient(
+  config.alloyApiKey,
+  config.alloyBaseUrl,
+  config.alloyUserId
+);
+
+// Read data
+const pages = await client.readData(
+  config.alloyUserId,
+  'notion',
+  'pages'
+);
+
+// Create data
+await client.createData(
+  config.alloyUserId,
+  'notion',
+  'pages',
+  { title: 'New Page', content: 'Content' }
+);
+
+// Update data
+await client.updateData(
+  config.alloyUserId,
+  'notion',
+  'pages',
+  pageId,
+  { title: 'Updated Title' }
+);
+```
+
+### OAuth Flow
+
+```typescript
+import { AlloyOAuthFlow } from './src/oauth-flow.js';
+
+const oauthFlow = new AlloyOAuthFlow();
+
+// Initiate OAuth flow
+const { oauthUrl } = await oauthFlow.initiateOAuthFlow(
+  'notion',
+  'http://localhost:3000/oauth/callback'
+);
+
+// Redirect user to oauthUrl
+// After authorization, handle callback
+const { connectionId } = await oauthFlow.handleOAuthCallback(
+  'notion',
+  code,
+  state
+);
+```
+
+## 📋 Environment Variables
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `ALLOY_API_KEY` | Yes | Your Alloy API key |
+| `ALLOY_USER_ID` | Yes | Your Alloy user ID |
+| `CONNECTION_ID` | Yes* | Connection ID after OAuth flow |
+| `ALLOY_BASE_URL` | No | API base URL (default: `https://api.runalloy.com`) |
+
+\* Required for data operations. Get it after completing the OAuth flow.
 
 ## 🔌 Supported Integrations
 
-Alloy supports 200+ integrations including:
+This demo uses **Notion** as an example, but Alloy supports **200+ integrations**:
 
-- **CRM**: Salesforce, HubSpot, Pipedrive, Zoho CRM
+- **Productivity**: Notion, Airtable, Google Workspace
+- **CRM**: Salesforce, HubSpot, Pipedrive
 - **Marketing**: Mailchimp, SendGrid, Klaviyo
 - **E-commerce**: Shopify, WooCommerce, BigCommerce
-- **Support**: Zendesk, Intercom, Freshdesk
 - And many more!
 
-## 📝 Real-World Use Cases
+## 🛠️ Development
 
-This demo can be adapted for various real-world scenarios:
+### Available Scripts
 
-1. **CRM Synchronization**: Keep contact data in sync across multiple CRMs
-2. **Lead Management**: Automatically create leads in your CRM from web forms
-3. **Customer Data Platform**: Aggregate customer data from multiple sources
-4. **Marketing Automation**: Sync contacts between CRM and email marketing tools
-5. **Support Ticket Integration**: Link support tickets with CRM contacts
+```bash
+# Start development server
+npm run server
 
-## 🏗️ Project Structure
+# Run main demo
+npm run dev
+
+# Connect Notion via OAuth
+npm run connect-notion
+
+# List available connectors
+npm run list-connectors
+
+# List your connections
+npm run list-connections
+
+# Test OAuth flow
+npm run test-oauth
+
+# Build for production
+npm run build
+```
+
+### Project Structure
 
 ```
 alloy-connectivity-demo/
 ├── src/
-│   ├── config.ts           # Configuration and environment management
-│   ├── alloy-client.ts     # Alloy API wrapper with all operations
-│   └── demo.ts            # Main demo application
-├── .env.example           # Environment variable template
-├── .gitignore            # Git ignore rules
-├── package.json          # Project dependencies and scripts
-├── tsconfig.json         # TypeScript configuration
-└── README.md            # This file
+│   ├── config.ts              # Configuration management
+│   ├── alloy-client.ts        # SDK client wrapper
+│   ├── rest-api-example.ts    # REST API client
+│   ├── oauth-flow.ts          # OAuth flow handler
+│   ├── server.ts              # Express server
+│   ├── demo.ts                # Main demo
+│   └── connect-notion-frontend.html  # Web interface
+├── docs/                      # Documentation
+├── .env.example              # Environment template
+├── package.json              # Dependencies
+└── README.md                 # This file
 ```
 
-## 🛠️ Development
+## 📚 Documentation
 
-### Building
-
-Compile TypeScript to JavaScript:
-```bash
-npm run build
-```
-
-Output will be in the `dist/` directory.
-
-### Code Structure
-
-- **config.ts**: Manages environment variables and validates configuration
-- **alloy-client.ts**: Encapsulates all Alloy API interactions
-- **demo.ts**: Orchestrates the demo workflow and provides examples
-
-## 🔒 Security Best Practices
-
-- Never commit `.env` files to version control
-- Store API keys in environment variables or secure vault services
-- Use different API keys for development and production
-- Regularly rotate your API keys
-- Implement rate limiting for production applications
+- [Backend Server Guide](docs/backend-server-guide.md) - Server setup and API endpoints
+- [OAuth Flow Guide](docs/oauth-flow-guide.md) - Complete OAuth implementation
+- [Getting Connection ID](docs/getting-connection-id.md) - How to get connection IDs
+- [Troubleshooting](docs/troubleshooting.md) - Common issues and solutions
 
 ## 🐛 Troubleshooting
 
@@ -223,47 +329,45 @@ Output will be in the `dist/` directory.
 
 **"ALLOY_API_KEY environment variable is required"**
 - Make sure you've created a `.env` file from `.env.example`
-- Verify your API key is correctly set in `.env`
+- Verify your API key is correctly set
+
+**"Connection not yet established"**
+- Complete the OAuth flow first (see Step 1 above)
+- Add the Connection ID to your `.env` file
 
 **"Authentication failed"**
-- Check that your API key is valid and not expired
+- Check that your API key is valid
 - Verify your User ID is correct
 - Ensure you have internet connectivity
 
-**"Could not read contacts"**
-- Make sure you've set up at least one integration in the Alloy dashboard
-- Verify the integration is properly authenticated
-- Check that the integration ID matches your setup
+**"Could not read pages"**
+- Make sure you've completed the OAuth flow
+- Verify the Connection ID in your `.env` file
+- Ensure you have pages in your Notion workspace
 
-**"Connection not yet established"**
-- You need to authenticate the integration in the Alloy dashboard first
-- Navigate to Integrations → [Your Integration] → Connect
-- Follow the OAuth flow to grant access
+## 🔒 Security Best Practices
 
-## 📚 Resources
+- ✅ Never commit `.env` files to version control
+- ✅ Store API keys in environment variables
+- ✅ Use different API keys for development and production
+- ✅ Regularly rotate your API keys
+- ✅ Implement rate limiting for production applications
+
+## 📄 License
+
+This project is licensed under the MIT License.
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 🔗 Resources
 
 - [Alloy Documentation](https://docs.runalloy.com)
 - [Alloy API Reference](https://docs.runalloy.com/api-reference)
 - [Alloy Node.js SDK](https://github.com/alloy-automation/alloy-node)
 - [Alloy Dashboard](https://app.runalloy.com)
 
-## 🤝 Contributing
-
-Contributions are welcome! Feel free to:
-
-- Report bugs
-- Suggest new features
-- Submit pull requests
-- Improve documentation
-
-## 📄 License
-
-This project is licensed under the MIT License.
-
-## 👤 Author
-
-Created as a demonstration of Alloy's Connectivity API capabilities.
-
 ---
 
-**Note**: This is a demo application. For production use, implement additional security measures, error handling, logging, and monitoring as appropriate for your use case.
+**Note**: This is a demonstration project. For production use, implement additional security measures, error handling, logging, and monitoring as appropriate for your use case.

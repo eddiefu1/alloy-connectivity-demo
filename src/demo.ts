@@ -1,11 +1,11 @@
-import { AlloyClient } from './alloy-client';
-import { getConfig } from './config';
+import { AlloyClient } from './alloy-client.js';
+import { getConfig } from './config.js';
 
 /**
  * Main demo function that demonstrates:
  * 1. Authentication flow
- * 2. Reading data (contacts) from a CRM
- * 3. Writing data (creating a new contact) to a CRM
+ * 2. Reading data (pages) from Notion
+ * 3. Writing data (creating new pages) to Notion
  */
 async function runDemo() {
   try {
@@ -55,75 +55,76 @@ async function runDemo() {
       console.log('   3. Use that connection ID to make API calls');
     }
 
-    // Step 3: Read Data (Contacts) - READ Operation
+    // Step 3: Read Data (Pages) - READ Operation
     console.log('\n' + '='.repeat(50));
-    console.log('STEP 3: Read Data - Fetch Contacts');
+    console.log('STEP 3: Read Data - Fetch Pages');
     console.log('='.repeat(50));
     
     try {
-      const contacts = await alloyClient.readContacts();
+      const pages = await alloyClient.readPages();
 
-      if (contacts.length > 0) {
-        console.log('\nSample contact data:');
-        console.log(JSON.stringify(contacts[0], null, 2));
+      if (pages.length > 0) {
+        console.log('\nSample page data:');
+        console.log(JSON.stringify(pages[0], null, 2));
       }
     } catch (error) {
-      console.log('⚠️  Could not read contacts. This is expected without a valid connection.');
-      console.log('   With a real connection, this would return contact data from your CRM.');
+      console.log('⚠️  Could not read pages. This is expected without a valid connection.');
+      console.log('   With a real connection, this would return page data from your Notion workspace.');
     }
 
-    // Step 4: Write Data (Create Contact) - WRITE Operation
+    // Step 4: Write Data (Create Page) - WRITE Operation
     console.log('\n' + '='.repeat(50));
-    console.log('STEP 4: Write Data - Create New Contact');
+    console.log('STEP 4: Write Data - Create New Page');
     console.log('='.repeat(50));
     
-    const newContact = {
-      firstName: 'John',
-      lastName: 'Doe',
-      email: 'john.doe@example.com',
-      phone: '+1-555-0123',
-      company: 'Acme Corp',
+    const newPage = {
+      title: 'Project Planning',
+      content: 'This is a new page created via Alloy API',
+      author: 'John Doe',
+      tags: ['project', 'planning'],
+      status: 'active',
     };
 
     try {
-      const result = await alloyClient.createContact(newContact);
-      console.log('\n✅ Contact created successfully!');
+      const result = await alloyClient.createPage(newPage);
+      console.log('\n✅ Page created successfully!');
     } catch (error) {
-      console.log('⚠️  Could not create contact. This is expected without a valid connection.');
-      console.log('   With a real connection, this would create a new contact in your CRM.');
+      console.log('⚠️  Could not create page. This is expected without a valid connection.');
+      console.log('   With a real connection, this would create a new page in your Notion workspace.');
     }
 
     // Step 5: Update Data - UPDATE Operation
     console.log('\n' + '='.repeat(50));
-    console.log('STEP 5: Update Data - Update Existing Contact');
+    console.log('STEP 5: Update Data - Update Existing Page');
     console.log('='.repeat(50));
     
     try {
-      // In a real scenario, you would use an actual contact ID from the read operation
-      const contactId = process.env.SAMPLE_CONTACT_ID || 'contact_123abc';
+      // In a real scenario, you would use an actual page ID from the read operation
+      const pageId = process.env.SAMPLE_PAGE_ID || 'page_123abc';
       const updatedData = {
-        phone: '+1-555-9999',
-        company: 'New Company Inc',
+        content: 'Updated page content via Alloy API',
+        status: 'completed',
+        tags: ['project', 'planning', 'completed'],
       };
 
-      await alloyClient.updateContact(contactId, updatedData);
-      console.log('\n✅ Contact updated successfully!');
+      await alloyClient.updatePage(pageId, updatedData);
+      console.log('\n✅ Page updated successfully!');
     } catch (error) {
-      console.log('⚠️  Could not update contact. This is expected without a valid connection.');
-      console.log('   With a real connection, this would update the contact in your CRM.');
+      console.log('⚠️  Could not update page. This is expected without a valid connection.');
+      console.log('   With a real connection, this would update the page in your Notion workspace.');
     }
 
-    // Step 6: List Accounts
+    // Step 6: List Databases
     console.log('\n' + '='.repeat(50));
-    console.log('STEP 6: Read Additional Data - List Accounts');
+    console.log('STEP 6: Read Additional Data - List Databases');
     console.log('='.repeat(50));
     
     try {
-      const accounts = await alloyClient.listAccounts();
-      console.log(`✅ Found ${accounts.length} accounts`);
+      const databases = await alloyClient.listDatabases();
+      console.log(`✅ Found ${databases.length} databases`);
     } catch (error) {
-      console.log('⚠️  Could not list accounts. This is expected without a valid connection.');
-      console.log('   With a real connection, this would return account data from your CRM.');
+      console.log('⚠️  Could not list databases. This is expected without a valid connection.');
+      console.log('   With a real connection, this would return database data from your Notion workspace.');
     }
 
     // Summary
@@ -132,13 +133,13 @@ async function runDemo() {
     console.log('='.repeat(50));
     console.log('\nThis demo demonstrated:');
     console.log('  ✓ Authentication flow with Alloy Unified API');
-    console.log('  ✓ Reading data (contacts & accounts) from CRM');
-    console.log('  ✓ Writing data (creating contacts) to CRM');
-    console.log('  ✓ Updating existing contact data in CRM');
+    console.log('  ✓ Reading data (pages & databases) from Notion');
+    console.log('  ✓ Writing data (creating pages) to Notion');
+    console.log('  ✓ Updating existing page data in Notion');
     console.log('\nWhat you need for a real connection:');
     console.log('  1. Get your API key from Alloy dashboard (https://app.runalloy.com)');
     console.log('  2. Create/identify a user in your system');
-    console.log('  3. Have the user complete OAuth flow for their CRM');
+    console.log('  3. Have the user complete OAuth flow for Notion');
     console.log('  4. Use the connection ID from the OAuth callback');
     console.log('  5. Update .env with real credentials and run again');
     console.log('\n📚 See EXAMPLES.md for more use cases');

@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connect Notion to Alloy</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .step {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f9f9f9;
+            border-left: 4px solid #007bff;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .success {
+            color: green;
+            padding: 15px;
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 4px;
+            margin: 15px 0;
+        }
+        .error {
+            color: red;
+            padding: 15px;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 4px;
+            margin: 15px 0;
+        }
+        .info {
+            color: #0c5460;
+            padding: 15px;
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            border-radius: 4px;
+            margin: 15px 0;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .connection-id {
+            font-size: 18px;
+            font-weight: bold;
+            color: #007bff;
+            word-break: break-all;
+            margin: 10px 0;
+        }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔗 Connect Notion to Alloy Automation</h1>
+        <p>Connect your Notion workspace to Alloy Automation using the backend API.</p>
+
+        <div class="step">
+            <h3>Step 1: Check Configuration</h3>
+            <p>Verify that your backend is configured correctly:</p>
+            <button onclick="checkConfig()" id="checkConfigBtn">Check Configuration</button>
+            <button onclick="runDiagnostics()" id="diagnoseBtn" style="background-color: #28a745; margin-left: 10px;">Run Full Diagnostics</button>
+            <div id="configResult"></div>
+            <div id="diagnosticResult"></div>
+        </div>
+
+        <div class="step">
+            <h3>Step 2: Connect Notion</h3>
+            <p>Click the button below to start the OAuth flow and connect your Notion workspace:</p>
+            <button onclick="connectNotion()" id="connectBtn">Connect Notion</button>
+            <div id="connectResult"></div>
+        </div>
+
+        <div class="step" id="successStep" style="display: none;">
+            <h3>✅ Success!</h3>
+            <p>Your Notion workspace has been connected to Alloy Automation!</p>
+            <p><strong>Connection ID:</strong></p>
+            <div class="connection-id" id="connectionId"></div>
+            <p style="margin-top: 15px;"><strong>Next Steps:</strong></p>
+            <ol>
+                <li>Copy the Connection ID above</li>
+                <li>Add it to your <code>.env</code> file: <code>CONNECTION_ID=your_connection_id_here</code></li>
+                <li>You can now use this connection to interact with Notion via Alloy API</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        window.checkConfig = async function() {
+            const configResult = document.getElementById('configResult');
+            const checkConfigBtn = document.getElementById('checkConfigBtn');
+            
+            try {
+                checkConfigBtn.disabled = true;
+                checkConfigBtn.textContent = 'Checking...';
+                configResult.innerHTML = '<div class="info">🔄 Checking configuration... <span class="loading"></span></div>';
+
+                const response = await fetch('/api/config/check');
+                const data = await response.json();
+
+                if (data.success) {
+                    let html = '<div class="info">';
+                    html += '<strong>Configuration Status:</strong><br><br>';
+                    html += `API Key: ${data.config.hasApiKey ? '✅ Set' : '❌ Missing'} (${data.config.apiKeyLength} chars)<br>`;
+                    html += `User ID: ${data.config.hasUserId ? '✅ Set' : '❌ Missing'} (${data.config.userIdLength} chars)<br>`;
+                    if (data.config.hasUserId) {
+                        html += `User ID Value: <code>${data.config.userId}</code><br>`;
+                    }
+                    html += `<br><strong>Status:</strong> ${data.status.ready ? '✅ Ready' : '❌ Not Ready'}<br>`;
+                    
+                    if (!data.status.ready) {
+                        html += '<br><strong>Issues:</strong><br>';
+                        if (data.status.missing.apiKey) {
+                            html += '❌ API Key is missing<br>';
+                        }
+                        if (data.status.missing.userId) {
+                            html += '❌ User ID is missing<br>';
+                        }
+                        html += '<br><strong>Suggestions:</strong><br>';
+                        html += `• ${data.suggestions.apiKey}<br>`;
+                        html += `• ${data.suggestions.userId}<br>`;
+                    }
+                    
+                    html += '</div>';
+                    configResult.innerHTML = html;
+                } else {
+                    configResult.innerHTML = `<div class="error">❌ Failed to check configuration: ${data.error}</div>`;
+                }
+            } catch (error) {
+                configResult.innerHTML = `<div class="error">❌ Error: ${error.message}<br><br>Check the browser console (F12) for more details.</div>`;
+                console.error('Error:', error);
+            } finally {
+                checkConfigBtn.disabled = false;
+                checkConfigBtn.textContent = 'Check Configuration';
+            }
+        };
+
+        window.connectNotion = async function() {
+            const resultDiv = document.getElementById('connectResult');
+            const connectBtn = document.getElementById('connectBtn');
+            
+            try {
+                connectBtn.disabled = true;
+                connectBtn.textContent = 'Connecting...';
+                resultDiv.innerHTML = '<div class="info">🔄 Initiating OAuth flow... <span class="loading"></span></div>';
+
+                const response = await fetch('/api/oauth/initiate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        connectorId: 'notion',
+                        redirectUri: window.location.origin + '/oauth/callback'
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    // Display detailed error message
+                    let errorMsg = data.error || 'Failed to initiate OAuth flow';
+                    if (data.message) {
+                        errorMsg += '<br><br>' + data.message;
+                    }
+                    if (data.suggestion) {
+                        errorMsg += '<br><br><strong>💡 Suggestion:</strong><br>' + data.suggestion.replace(/\n/g, '<br>');
+                    }
+                    if (data.details) {
+                        errorMsg += '<br><br><strong>Details:</strong><br><pre style="background: #f4f4f4; padding: 10px; border-radius: 4px; overflow: auto; max-height: 200px;">' + JSON.stringify(data.details, null, 2) + '</pre>';
+                    }
+                    resultDiv.innerHTML = `<div class="error">❌ ${errorMsg}<br><br>Check the browser console (F12) for more details.</div>`;
+                    connectBtn.disabled = false;
+                    connectBtn.textContent = 'Connect Notion';
+                    console.error('Error response:', data);
+                    return;
+                }
+
+                if (data.success && data.oauthUrl) {
+                    resultDiv.innerHTML = '<div class="info">🔄 Redirecting to Notion authorization... <span class="loading"></span></div>';
+                    
+                    // Log OAuth URL for debugging
+                    console.log('OAuth URL:', data.oauthUrl);
+                    console.log('Expected callback:', data.redirectUri);
+                    if (data.debug) {
+                        console.log('Debug info:', data.debug);
+                    }
+                    
+                    // Redirect to OAuth URL
+                    window.location.href = data.oauthUrl;
+                }
+            } catch (error) {
+                let errorMsg = error.message || 'An unexpected error occurred';
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${errorMsg}<br><br>Check the browser console (F12) for more details.</div>`;
+                connectBtn.disabled = false;
+                connectBtn.textContent = 'Connect Notion';
+                console.error('Error:', error);
+            }
+        };
+
+        window.runDiagnostics = async function() {
+            const resultDiv = document.getElementById('diagnosticResult');
+            const diagnoseBtn = document.getElementById('diagnoseBtn');
+            
+            try {
+                diagnoseBtn.disabled = true;
+                diagnoseBtn.textContent = 'Running Diagnostics...';
+                resultDiv.innerHTML = '<div class="info">🔍 Running comprehensive diagnostics... <span class="loading"></span></div>';
+
+                const response = await fetch('/api/diagnose');
+                const data = await response.json();
+
+                if (data.success) {
+                    let html = '<div class="success">✅ Diagnostics Complete</div>';
+                    html += '<div class="step">';
+                    html += '<h4>Summary:</h4>';
+                    html += `<p>Total Tests: ${data.summary.totalTests}</p>`;
+                    html += `<p>✅ Passed: ${data.summary.passed}</p>`;
+                    html += `<p>❌ Failed: ${data.summary.failed}</p>`;
+                    html += `<p>ℹ️ Info: ${data.summary.info}</p>`;
+                    html += '</div>';
+
+                    data.diagnostics.tests.forEach((test) => {
+                        html += '<div class="step">';
+                        html += `<h4>${test.name}: <span style="color: ${test.status === 'success' ? 'green' : test.status === 'failed' ? 'red' : 'orange'}">${test.status.toUpperCase()}</span></h4>`;
+                        html += `<p>${test.message}</p>`;
+                        
+                        if (test.data) {
+                            html += '<pre style="background: #f5f5f5; padding: 10px; border-radius: 4px; overflow: auto;">';
+                            html += JSON.stringify(test.data, null, 2);
+                            html += '</pre>';
+                        }
+                        
+                        if (test.suggestion) {
+                            html += `<p><strong>💡 Suggestion:</strong> ${test.suggestion}</p>`;
+                        }
+                        
+                        if (test.error) {
+                            html += `<p><strong>❌ Error:</strong> ${JSON.stringify(test.error)}</p>`;
+                        }
+                        
+                        if (test.checklist) {
+                            html += '<ul>';
+                            test.checklist.forEach((item) => {
+                                const icon = item.status === 'pass' ? '✅' : item.status === 'fail' ? '❌' : '⚠️';
+                                html += `<li>${icon} ${item.item}</li>`;
+                            });
+                            html += '</ul>';
+                        }
+                        
+                        html += '</div>';
+                    });
+
+                    if (data.nextSteps && data.nextSteps.length > 0) {
+                        html += '<div class="step">';
+                        html += '<h4>📋 Next Steps:</h4>';
+                        html += '<ul>';
+                        data.nextSteps.forEach((step) => {
+                            html += `<li>${step}</li>`;
+                        });
+                        html += '</ul>';
+                        html += '</div>';
+                    }
+
+                    html += '<div class="step" style="background: #fff3cd; border-left-color: #ffc107;">';
+                    html += '<h4>🔧 Alloy Dashboard Checklist:</h4>';
+                    html += '<p><strong>If OAuth callback has no code, check Alloy dashboard:</strong></p>';
+                    html += '<ol>';
+                    html += '<li>Go to <a href="https://app.runalloy.com" target="_blank">Alloy Dashboard</a></li>';
+                    html += '<li>Check API Key permissions (Settings → API Keys)</li>';
+                    html += '<li>Verify User ID matches your account</li>';
+                    html += '<li>Check if redirect URI needs to be registered</li>';
+                    html += '<li>Verify Notion connector is enabled</li>';
+                    html += '<li>Check OAuth/Connection settings</li>';
+                    html += '</ol>';
+                    html += '</div>';
+
+                    resultDiv.innerHTML = html;
+                } else {
+                    resultDiv.innerHTML = `<div class="error">❌ Error: ${data.error}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            } finally {
+                diagnoseBtn.disabled = false;
+                diagnoseBtn.textContent = 'Run Full Diagnostics';
+            }
+        };
+
+        // Initialize page when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('✅ Page loaded');
+            
+            // Enable connect button
+            const connectBtn = document.getElementById('connectBtn');
+            if (connectBtn) {
+                connectBtn.disabled = false;
+                console.log('✅ Connect button enabled');
+            }
+
+            // Check if we're coming back from OAuth callback with success
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('success') === 'true') {
+                const connectionId = urlParams.get('connectionId');
+                if (connectionId) {
+                    document.getElementById('successStep').style.display = 'block';
+                    document.getElementById('connectionId').textContent = connectionId;
+                    document.getElementById('successStep').scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+        });
+    </script>
+</body>
+</html>

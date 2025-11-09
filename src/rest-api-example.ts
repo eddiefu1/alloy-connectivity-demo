@@ -1,5 +1,5 @@
 import axios, { AxiosInstance } from 'axios';
-import { getConfig } from './config';
+import { getConfig } from './config.js';
 
 /**
  * Alternative implementation using REST API directly (without SDK)
@@ -152,10 +152,10 @@ async function demonstrateRestApi() {
     console.log(`Found ${integrations.length || 0} integrations`);
 
     // Example: Read data
-    const integrationId = process.env.INTEGRATION_ID || 'salesforce';
-    console.log(`\nReading contacts from ${integrationId}...`);
-    const contacts = await client.readData(config.alloyUserId, integrationId, 'contacts');
-    console.log(`Retrieved ${contacts.data?.length || 0} contacts`);
+    const integrationId = process.env.INTEGRATION_ID || 'notion';
+    console.log(`\nReading pages from ${integrationId}...`);
+    const pages = await client.readData(config.alloyUserId, integrationId, 'pages');
+    console.log(`Retrieved ${pages.data?.length || 0} pages`);
 
   } catch (error: any) {
     console.error('REST API demo failed:', error.message);

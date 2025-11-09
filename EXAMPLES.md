@@ -1,12 +1,12 @@
 # Usage Examples
 
-This document provides practical examples of how to use the Alloy Connectivity API for various integration scenarios.
+This document provides practical examples of how to use the Alloy Connectivity API for various integration scenarios with Notion.
 
 ## Basic Examples
 
-### Example 1: Simple Contact Sync
+### Example 1: Simple Page Creation
 
-Sync a contact from your application to a CRM:
+Create a page in your Notion workspace:
 
 ```typescript
 import { AlloyClient } from './src/alloy-client';
@@ -15,68 +15,67 @@ import { getConfig } from './src/config';
 const config = getConfig();
 const client = new AlloyClient(config);
 
-// Create a contact in Salesforce
-const newContact = {
-  firstName: 'Jane',
-  lastName: 'Smith',
-  email: 'jane.smith@example.com',
-  phone: '+1-555-1234',
-  company: 'Tech Solutions Inc',
-  title: 'Software Engineer'
+// Authenticate and connect
+await client.authenticateUser(config.alloyUserId);
+await client.connectToIntegration(process.env.CONNECTION_ID!);
+
+// Create a page in Notion
+const newPage = {
+  title: 'Meeting Notes',
+  content: 'Discussion about Q4 planning',
+  author: 'Jane Smith',
+  tags: ['meeting', 'planning'],
+  status: 'active'
 };
 
-await client.writeData(
-  config.alloyUserId,
-  'salesforce',
-  'contacts',
-  newContact
-);
+await client.createPage(newPage);
 ```
 
 ### Example 2: Batch Read Operations
 
-Read multiple records from a CRM:
+Read multiple pages from Notion:
 
 ```typescript
-// Fetch all contacts
-const contacts = await client.readData(
-  config.alloyUserId,
-  'salesforce',
-  'contacts'
-);
+// Authenticate and connect
+await client.authenticateUser(config.alloyUserId);
+await client.connectToIntegration(process.env.CONNECTION_ID!);
 
-console.log(`Found ${contacts.length} contacts`);
+// Fetch all pages
+const pages = await client.readPages();
 
-// Process each contact
-contacts.forEach(contact => {
-  console.log(`${contact.firstName} ${contact.lastName} - ${contact.email}`);
+console.log(`Found ${pages.length} pages`);
+
+// Process each page
+pages.forEach(page => {
+  console.log(`${page.title || page.name} - ${page.id}`);
 });
 ```
 
-### Example 3: Update Existing Record
+### Example 3: Update Existing Page
 
-Update a contact's information:
+Update a page's information:
 
 ```typescript
-// Update a specific contact
-await client.updateData(
-  config.alloyUserId,
-  'salesforce',
-  'contacts',
-  'contact_id_123',
+// Authenticate and connect
+await client.authenticateUser(config.alloyUserId);
+await client.connectToIntegration(process.env.CONNECTION_ID!);
+
+// Update a specific page
+await client.updatePage(
+  'page_id_123',
   {
-    phone: '+1-555-9999',
-    title: 'Senior Software Engineer',
-    company: 'New Company LLC'
+    content: 'Updated content with new information',
+    status: 'completed',
+    tags: ['project', 'completed']
   }
 );
 ```
 
 ## Real-World Use Cases
 
-### Use Case 1: Lead Capture from Website
+### Use Case 1: Content Creation from Website
 
-Automatically create leads in your CRM when users submit a form on your website:
+Automatically create Notion pages when users submit a form on your website:
 
 ```typescript
 // In your web application's API endpoint
@@ -84,160 +83,130 @@ async function handleFormSubmission(formData: any) {
   const config = getConfig();
   const client = new AlloyClient(config);
 
-  const leadData = {
-    firstName: formData.firstName,
-    lastName: formData.lastName,
-    email: formData.email,
-    phone: formData.phone,
-    company: formData.company,
+  // Authenticate and connect
+  await client.authenticateUser(config.alloyUserId);
+  await client.connectToIntegration(process.env.CONNECTION_ID!);
+
+  const pageData = {
+    title: `${formData.name} - Contact Form Submission`,
+    content: `Name: ${formData.name}\nEmail: ${formData.email}\nMessage: ${formData.message}`,
+    author: formData.name,
     source: 'Website Form',
-    status: 'New Lead'
+    status: 'new',
+    tags: ['contact', 'form-submission']
   };
 
   try {
-    await client.writeData(
-      config.alloyUserId,
-      'salesforce',
-      'leads',
-      leadData
-    );
+    await client.createPage(pageData);
     
-    console.log('Lead created successfully in CRM');
+    console.log('Page created successfully in Notion');
     return { success: true };
   } catch (error) {
-    console.error('Failed to create lead:', error);
+    console.error('Failed to create page:', error);
     return { success: false, error: error.message };
   }
 }
 ```
 
-### Use Case 2: Two-Way CRM Sync
+### Use Case 2: Two-Way Notion Sync
 
-Synchronize contacts between two different CRM systems:
+Synchronize pages between two different Notion workspaces:
 
 ```typescript
-async function syncCRMs() {
+async function syncNotionWorkspaces() {
   const config = getConfig();
   const client = new AlloyClient(config);
 
-  // Read contacts from Salesforce
-  const salesforceContacts = await client.readData(
-    config.alloyUserId,
-    'salesforce',
-    'contacts'
-  );
+  // Authenticate and connect to source workspace
+  await client.authenticateUser(config.alloyUserId);
+  await client.connectToIntegration(process.env.CONNECTION_ID_SOURCE!);
 
-  // Write each contact to HubSpot
-  for (const contact of salesforceContacts) {
-    const hubspotContact = {
-      firstname: contact.firstName,
-      lastname: contact.lastName,
-      email: contact.email,
-      phone: contact.phone,
-      company: contact.company
+  // Read pages from source workspace
+  const sourcePages = await client.readPages();
+
+  // Connect to target workspace
+  await client.connectToIntegration(process.env.CONNECTION_ID_TARGET!);
+
+  // Write each page to target workspace
+  for (const page of sourcePages) {
+    const pageData = {
+      title: page.title || page.name,
+      content: page.content || '',
+      author: page.author || 'System',
+      tags: page.tags || [],
+      status: page.status || 'active'
     };
 
-    await client.writeData(
-      config.alloyUserId,
-      'hubspot',
-      'contacts',
-      hubspotContact
-    );
+    await client.createPage(pageData);
   }
 
-  console.log(`Synced ${salesforceContacts.length} contacts from Salesforce to HubSpot`);
+  console.log(`Synced ${sourcePages.length} pages between Notion workspaces`);
 }
 ```
 
-### Use Case 3: Customer Data Enrichment
+### Use Case 3: Page Data Enrichment
 
-Enrich customer data by combining information from multiple sources:
+Enrich Notion page data by combining information from multiple sources:
 
 ```typescript
-async function enrichCustomerData(email: string) {
+async function enrichPageData(pageId: string) {
   const config = getConfig();
   const client = new AlloyClient(config);
 
-  // Get contact from CRM
-  const crmContacts = await client.readData(
-    config.alloyUserId,
-    'salesforce',
-    'contacts'
-  );
-  const crmContact = crmContacts.find(c => c.email === email);
+  // Authenticate and connect
+  await client.authenticateUser(config.alloyUserId);
+  await client.connectToIntegration(process.env.CONNECTION_ID!);
 
-  // Get marketing data
-  const marketingData = await client.readData(
-    config.alloyUserId,
-    'mailchimp',
-    'members'
-  );
-  const marketingContact = marketingData.find(m => m.email_address === email);
+  // Get page from Notion
+  const page = await client.getPage(pageId);
+
+  // Get additional data from external source (example: API call)
+  const externalData = await fetchExternalData(page.title);
 
   // Combine and enrich data
   const enrichedData = {
-    ...crmContact,
-    marketingOptIn: marketingContact?.status === 'subscribed',
-    emailEngagement: marketingContact?.stats?.avg_open_rate,
-    tags: marketingContact?.tags || []
+    ...page,
+    externalMetadata: externalData.metadata,
+    lastSynced: new Date().toISOString(),
+    tags: [...(page.tags || []), ...(externalData.tags || [])],
+    status: externalData.status || page.status
   };
 
-  // Update CRM with enriched data
-  await client.updateData(
-    config.alloyUserId,
-    'salesforce',
-    'contacts',
-    crmContact.id,
-    enrichedData
-  );
+  // Update page with enriched data
+  await client.updatePage(pageId, enrichedData);
 
   return enrichedData;
 }
 ```
 
-### Use Case 4: Support Ticket Integration
+### Use Case 4: Documentation Integration
 
-Link support tickets with CRM contacts:
+Create Notion pages from support tickets or issues:
 
 ```typescript
-async function createSupportTicketFromCRM(contactEmail: string, issue: string) {
+async function createNotionPageFromTicket(ticketId: string, ticketData: any) {
   const config = getConfig();
   const client = new AlloyClient(config);
 
-  // Find contact in CRM
-  const contacts = await client.readData(
-    config.alloyUserId,
-    'salesforce',
-    'contacts'
-  );
-  const contact = contacts.find(c => c.email === contactEmail);
+  // Authenticate and connect
+  await client.authenticateUser(config.alloyUserId);
+  await client.connectToIntegration(process.env.CONNECTION_ID!);
 
-  if (!contact) {
-    throw new Error('Contact not found in CRM');
-  }
-
-  // Create support ticket
-  const ticketData = {
-    subject: `Issue reported by ${contact.firstName} ${contact.lastName}`,
-    description: issue,
-    requester: {
-      name: `${contact.firstName} ${contact.lastName}`,
-      email: contact.email
-    },
-    priority: 'normal',
-    status: 'open',
-    tags: ['crm-integration', contact.company || 'unknown']
+  // Create Notion page from ticket
+  const pageData = {
+    title: `Support Ticket #${ticketId}: ${ticketData.subject}`,
+    content: `**Issue:** ${ticketData.description}\n\n**Requester:** ${ticketData.requester.name}\n**Email:** ${ticketData.requester.email}\n**Priority:** ${ticketData.priority}`,
+    author: ticketData.requester.name,
+    priority: ticketData.priority,
+    status: ticketData.status,
+    tags: ['support', 'ticket', ticketData.priority],
+    ticketId: ticketId
   };
 
-  const ticket = await client.writeData(
-    config.alloyUserId,
-    'zendesk',
-    'tickets',
-    ticketData
-  );
+  const page = await client.createPage(pageData);
 
-  console.log(`Created support ticket #${ticket.id} for ${contactEmail}`);
-  return ticket;
+  console.log(`Created Notion page for ticket #${ticketId}`);
+  return page;
 }
 ```
 
@@ -255,16 +224,19 @@ async function syncWithRetry(
   const config = getConfig();
   const client = new AlloyClient(config);
 
+  // Authenticate and connect
+  await client.authenticateUser(config.alloyUserId);
+  await client.connectToIntegration(process.env.CONNECTION_ID!);
+
   let attempt = 0;
   
   while (attempt < maxRetries) {
     try {
-      const result = await client.writeData(
-        config.alloyUserId,
-        'salesforce',
-        'contacts',
-        { /* data */ }
-      );
+      const result = await client.createPage({
+        title: 'Test Page',
+        content: 'Sync test',
+        status: 'active'
+      });
       
       console.log('Sync successful');
       return result;
@@ -289,34 +261,33 @@ async function syncWithRetry(
 Process large datasets with rate limiting:
 
 ```typescript
-async function bulkSync(contacts: any[], rateLimit: number = 5) {
+async function bulkSync(pages: any[], rateLimit: number = 5) {
   const config = getConfig();
   const client = new AlloyClient(config);
 
+  // Authenticate and connect
+  await client.authenticateUser(config.alloyUserId);
+  await client.connectToIntegration(process.env.CONNECTION_ID!);
+
   const chunks = [];
-  for (let i = 0; i < contacts.length; i += rateLimit) {
-    chunks.push(contacts.slice(i, i + rateLimit));
+  for (let i = 0; i < pages.length; i += rateLimit) {
+    chunks.push(pages.slice(i, i + rateLimit));
   }
 
   let processed = 0;
   
   for (const chunk of chunks) {
-    const promises = chunk.map(contact =>
-      client.writeData(
-        config.alloyUserId,
-        'salesforce',
-        'contacts',
-        contact
-      )
+    const promises = chunk.map(page =>
+      client.createPage(page)
     );
 
     await Promise.all(promises);
     processed += chunk.length;
     
-    console.log(`Processed ${processed}/${contacts.length} contacts`);
+    console.log(`Processed ${processed}/${pages.length} pages`);
     
     // Wait between batches to respect rate limits
-    if (processed < contacts.length) {
+    if (processed < pages.length) {
       await new Promise(resolve => setTimeout(resolve, 1000));
     }
   }
@@ -336,22 +307,21 @@ const app = express();
 app.use(express.json());
 
 // Webhook endpoint that syncs data when triggered
-app.post('/webhook/contact-created', async (req, res) => {
+app.post('/webhook/page-created', async (req, res) => {
   const config = getConfig();
   const client = new AlloyClient(config);
 
   try {
-    const contactData = req.body;
+    const pageData = req.body;
     
-    // Sync to CRM
-    await client.writeData(
-      config.alloyUserId,
-      'salesforce',
-      'contacts',
-      contactData
-    );
+    // Authenticate and connect
+    await client.authenticateUser(config.alloyUserId);
+    await client.connectToIntegration(process.env.CONNECTION_ID!);
+    
+    // Sync to Notion
+    await client.createPage(pageData);
 
-    res.json({ success: true, message: 'Contact synced to CRM' });
+    res.json({ success: true, message: 'Page synced to Notion' });
   } catch (error) {
     console.error('Webhook error:', error);
     res.status(500).json({ success: false, error: error.message });
@@ -379,17 +349,17 @@ const client = new AlloyRestClient(
 );
 
 // Same operations as SDK, but using REST calls
-const contacts = await client.readData(
+const pages = await client.readData(
   config.alloyUserId,
-  'salesforce',
-  'contacts'
+  'notion',
+  'pages'
 );
 
 await client.createData(
   config.alloyUserId,
-  'salesforce',
-  'contacts',
-  { firstName: 'John', lastName: 'Doe', email: 'john@example.com' }
+  'notion',
+  'pages',
+  { title: 'New Page', content: 'Page content', author: 'John Doe' }
 );
 ```
 
@@ -398,45 +368,46 @@ await client.createData(
 ### Mock Data for Testing
 
 ```typescript
-const mockContact = {
-  firstName: 'Test',
-  lastName: 'User',
-  email: `test.${Date.now()}@example.com`, // Unique email
-  phone: '+1-555-0000',
-  company: 'Test Company'
+// Authenticate and connect
+await client.authenticateUser(config.alloyUserId);
+await client.connectToIntegration(process.env.CONNECTION_ID!);
+
+const mockPage = {
+  title: `Test Page ${Date.now()}`, // Unique title
+  content: 'This is a test page',
+  author: 'Test User',
+  tags: ['test'],
+  status: 'active'
 };
 
 // Use in tests
-await client.writeData(
-  config.alloyUserId,
-  'salesforce',
-  'contacts',
-  mockContact
-);
+await client.createPage(mockPage);
 ```
 
 ### Environment-Specific Configuration
 
 ```typescript
-const integrationId = process.env.NODE_ENV === 'production'
-  ? 'salesforce-prod'
-  : 'salesforce-dev';
+const connectionId = process.env.NODE_ENV === 'production'
+  ? process.env.CONNECTION_ID_PROD!
+  : process.env.CONNECTION_ID_DEV!;
 
-await client.readData(config.alloyUserId, integrationId, 'contacts');
+await client.authenticateUser(config.alloyUserId);
+await client.connectToIntegration(connectionId);
+await client.readPages();
 ```
 
 ## Best Practices
 
 1. **Always validate data before syncing**
    ```typescript
-   function validateContact(contact: any): boolean {
-     return !!(contact.email && contact.firstName && contact.lastName);
+   function validatePage(page: any): boolean {
+     return !!(page.title && page.content);
    }
    ```
 
 2. **Log all sync operations for debugging**
    ```typescript
-   console.log(`[${new Date().toISOString()}] Syncing contact: ${contact.email}`);
+   console.log(`[${new Date().toISOString()}] Syncing page: ${page.title}`);
    ```
 
 3. **Handle partial failures gracefully**
@@ -450,7 +421,7 @@ await client.readData(config.alloyUserId, integrationId, 'contacts');
 
 4. **Use idempotency keys for critical operations**
    ```typescript
-   const idempotencyKey = `contact-${contact.email}-${Date.now()}`;
+   const idempotencyKey = `page-${page.title}-${Date.now()}`;
    // Include in your API calls to prevent duplicates
    ```
 
