@@ -110,7 +110,7 @@ This demo fulfills all requirements:
    - Or find existing connections: `npm run find-notion-connection` (lists all connections)
    - Or get from Alloy Dashboard → Connections
    
-   **Quick Setup:** See [SETUP_ENV_KEYS.md](SETUP_ENV_KEYS.md) for detailed setup instructions with your API keys.
+   For detailed setup instructions, see [SETUP.md](SETUP.md).
 
 ## 📖 Usage
 
@@ -211,141 +211,38 @@ STEP 5: Update Data - Update Existing Page
 
 ## 🏗️ Architecture
 
-### Components
+### Key Components
 
-```
-src/
-├── config.ts                    # Configuration management
-├── alloy-client.ts              # Node.js SDK client wrapper
-├── notion-client.ts             # Notion-specific client (uses Connectivity API)
-├── rest-api-example.ts          # REST API implementation
-├── oauth-flow.ts                # OAuth 2.0 flow handler
-├── server.ts                    # Express server with API endpoints
-├── demo.ts                      # Main demo orchestration
-├── connect-notion.ts            # OAuth connection script
-├── find-notion-connection.ts    # Find existing connections
-├── test-api-auth.ts             # API authentication tester
-├── test-notion-connection.ts    # Notion connection tester
-├── get-tokens.ts                # Get token information
-└── show-tokens.ts               # Show token information
-```
+- **NotionClient** (`src/notion-client.ts`) - Notion-specific client using Connectivity API
+- **AlloyOAuthFlow** (`src/oauth-flow.ts`) - OAuth 2.0 flow handler
+- **Config** (`src/config.ts`) - Configuration management
+- **Demo** (`src/demo.ts`) - Complete working example
 
-### API Endpoints
-
-The server provides the following endpoints:
-
-- `GET /api/health` - Health check
-- `GET /api/config/check` - Configuration status
-- `POST /api/oauth/initiate` - Initiate OAuth flow
-- `GET /oauth/callback` - OAuth callback handler
-- `GET /api/connectors` - List available connectors
-- `GET /api/connections` - List all connections
+See [Developer Guide](docs/developer-guide.md) for architecture details.
 
 ## 🔧 API Reference
 
-### Using the NotionClient (Recommended)
+For complete API examples and code patterns, see [EXAMPLES.md](EXAMPLES.md).
+
+### Quick Example
 
 ```typescript
 import { NotionClient } from './src/notion-client.js';
 import { getConfig } from './src/config.js';
 
 const config = getConfig();
-const connectionId = process.env.CONNECTION_ID;
-const notionClient = new NotionClient(config, connectionId);
+const notionClient = new NotionClient(config, process.env.CONNECTION_ID!);
 
 // Search pages
-const pages = await notionClient.searchPages(
-  undefined, // query (optional)
-  { value: 'page', property: 'object' } // filter
-);
+const pages = await notionClient.searchPages(undefined, { value: 'page', property: 'object' });
 
-// Create a new page
+// Create page
 const newPage = await notionClient.createPage({
-  parent: {
-    type: 'workspace',
-    workspace: true,
-  },
+  parent: { type: 'workspace', workspace: true },
   properties: {
-    title: {
-      type: 'title',
-      title: [{ type: 'text', text: { content: 'New Page' } }],
-    },
+    title: { type: 'title', title: [{ type: 'text', text: { content: 'New Page' } }] },
   },
 });
-
-// Get page ID and URL
-const pageId = newPage.id;
-const pageUrl = newPage.url;
-
-// Update an existing page
-const updatedPage = await notionClient.updatePage(pageId, {
-  properties: {
-    title: {
-      type: 'title',
-      title: [{ type: 'text', text: { content: 'Updated Title' } }],
-    },
-  },
-});
-```
-
-### Using the REST API
-
-```typescript
-import { AlloyRestClient } from './src/rest-api-example.js';
-import { getConfig } from './src/config.js';
-
-const config = getConfig();
-const client = new AlloyRestClient(
-  config.alloyApiKey,
-  config.alloyBaseUrl,
-  config.alloyUserId
-);
-
-// Read data
-const pages = await client.readData(
-  config.alloyUserId,
-  'notion',
-  'pages'
-);
-
-// Create data
-await client.createData(
-  config.alloyUserId,
-  'notion',
-  'pages',
-  { title: 'New Page', content: 'Content' }
-);
-
-// Update data
-await client.updateData(
-  config.alloyUserId,
-  'notion',
-  'pages',
-  pageId,
-  { title: 'Updated Title' }
-);
-```
-
-### OAuth Flow
-
-```typescript
-import { AlloyOAuthFlow } from './src/oauth-flow.js';
-
-const oauthFlow = new AlloyOAuthFlow();
-
-// Initiate OAuth flow
-const { oauthUrl } = await oauthFlow.initiateOAuthFlow(
-  'notion',
-  'http://localhost:3000/oauth/callback'
-);
-
-// Redirect user to oauthUrl
-// After authorization, handle callback
-const { connectionId } = await oauthFlow.handleOAuthCallback(
-  'notion',
-  code,
-  state
-);
 ```
 
 ## 📋 Environment Variables
@@ -434,18 +331,10 @@ alloy-connectivity-demo/
 
 ## 📚 Documentation
 
-- [Developer Guide](docs/developer-guide.md) - Comprehensive development guide
-- [Quick Reference](docs/quick-reference.md) - Quick reference for common tasks
+- [Setup Guide](SETUP.md) - Setup instructions and troubleshooting
+- [Examples](EXAMPLES.md) - Complete code examples and usage patterns
+- [Developer Guide](docs/developer-guide.md) - Development overview
 - [Endpoint Pattern Summary](docs/endpoint-pattern-summary.md) - API endpoint patterns
-- [Getting Tokens](docs/getting-tokens.md) - How to access tokens from Notion and Alloy
-- [API Key Setup](docs/api-key-setup.md) - API key setup and troubleshooting guide
-- [Finding Working Connections](docs/finding-working-connections.md) - How to find working connection IDs
-- [Environment Setup](docs/environment-setup.md) - Development and production environment configuration
-- [Access Tokens Guide](docs/access-tokens-guide.md) - Access tokens for Alloy and Notion
-- [Quick Setup - API Keys](SETUP_ENV_KEYS.md) - Quick setup guide with your API keys
-- [REST API Auth Setup](REST_API_AUTH_SETUP.md) - REST API authentication setup guide
-- [Setup Guide](SETUP.md) - Detailed setup instructions with troubleshooting
-- [Examples](EXAMPLES.md) - Usage examples and code samples
 
 ## 🐛 Troubleshooting
 
@@ -472,7 +361,7 @@ alloy-connectivity-demo/
 **"Credential not found" or "Invalid Authorization"**
 - Verify your API key is correct and has Connectivity API permissions
 - Test your API key: `npm run test-api-auth`
-- Check [API Key Setup Guide](docs/api-key-setup.md) for detailed troubleshooting
+- See the [Setup Guide](SETUP.md) for detailed troubleshooting
 - Ensure you're using the correct base URL: `https://production.runalloy.com`
 
 **"Connection not found in list, but API calls work"**

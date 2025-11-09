@@ -89,6 +89,16 @@ npm run test-api-auth
 
 This will verify that your API key is working correctly.
 
+### Test All Connections (Recommended)
+
+Test all your Notion connections to find which ones work for API calls:
+
+```bash
+npm run test-all-connections
+```
+
+This will test each connection and identify which ones are functional for API operations.
+
 ### Find Existing Connections
 
 If you already have Notion connections, find them:
@@ -101,7 +111,7 @@ This will list all your Notion connections and suggest a connection ID to use.
 
 ### Test Notion Connection
 
-Test your connection to Notion:
+Test a specific connection to Notion:
 
 ```bash
 npm run test-notion-connection
@@ -170,21 +180,22 @@ STEP 5: Update Data - Update Existing Page
 3. Ensure you have internet connectivity
 4. Test your API key: `npm run test-api-auth`
 5. Verify you're using the correct base URL: `https://production.runalloy.com`
-6. Check [API Key Setup Guide](docs/api-key-setup.md) for detailed troubleshooting
-7. Try regenerating your API key in the Alloy dashboard
-8. Ensure your API key has Connectivity API permissions
+6. Try regenerating your API key in the Alloy dashboard
+7. Ensure your API key has Connectivity API permissions
 
 ### "Connection not yet established" or "Credential not found"
 
 **Problem**: The integration hasn't been connected yet or the connection ID is invalid.
 
 **Solutions**:
-1. **Find existing connections**: Run `npm run find-notion-connection` to see your connections
-2. **Create a new connection**: Run `npm run connect-notion` to create a new OAuth connection
-3. **Test your connection**: Run `npm run test-notion-connection` to verify it works
-4. **Verify connection ID**: Make sure the Connection ID in your `.env` file is correct
-5. **Check connection in dashboard**: Go to Alloy Dashboard → Connections to verify
-6. **Use a working connection**: Some connection IDs work for API calls even if not in the list
+1. **Test all connections (Recommended)**: Run `npm run test-all-connections` to find working connections
+2. **Find existing connections**: Run `npm run find-notion-connection` to see your connections
+3. **Test a specific connection**: Run `npm run test-notion-connection` to verify it works
+4. **Create a new connection**: Run `npm run connect-notion` to create a new OAuth connection
+5. **Verify connection ID**: Make sure the Connection ID in your `.env` file is correct
+6. **Check connection in dashboard**: Go to Alloy Dashboard → Connections to verify
+
+**Note**: Some connection IDs from the list may not work for API calls. Use `npm run test-all-connections` to identify which connections actually work for API operations.
 
 ### Module not found errors
 

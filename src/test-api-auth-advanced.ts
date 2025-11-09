@@ -91,9 +91,9 @@ async function testAdvancedAuth() {
     }
   }
 
-  // Test with provided API keys from SETUP_ENV_KEYS.md
+  // Test with provided API keys
   console.log('\n' + '='.repeat(60));
-  console.log('Testing Provided API Keys from SETUP_ENV_KEYS.md');
+  console.log('Testing Provided API Keys');
   console.log('='.repeat(60));
 
   const providedKeys = [
