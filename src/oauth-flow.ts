@@ -198,11 +198,11 @@ export class AlloyOAuthFlow {
 
   /**
    * Get token information for a connection
-   * This retrieves access token details (if available) from the connection
-   * Note: For security, Alloy may not expose raw tokens, but will provide token metadata
+   * This retrieves access token metadata (if available) from the connection
+   * Note: For security, raw tokens are not returned - only metadata
    * 
    * @param connectionId - The connection ID
-   * @returns Token information including expiration, scopes, etc.
+   * @returns Token metadata including expiration, scopes, etc. (no raw tokens)
    */
   async getConnectionTokens(connectionId: string): Promise<{
     hasTokens: boolean;
@@ -220,17 +220,21 @@ export class AlloyOAuthFlow {
       // - connection.authentication
       // - connection.metadata
       
+      const rawAccessToken = connection.tokens?.access_token || connection.access_token || connection.credentials?.access_token;
+      const rawRefreshToken = connection.tokens?.refresh_token || connection.refresh_token || connection.credentials?.refresh_token;
+      
+      // Return token metadata only, not raw tokens
       const tokenInfo = {
-        accessToken: connection.tokens?.access_token || connection.access_token || connection.credentials?.access_token,
-        refreshToken: connection.tokens?.refresh_token || connection.refresh_token || connection.credentials?.refresh_token,
+        accessToken: rawAccessToken ? `${rawAccessToken.substring(0, 10)}...[REDACTED]` : undefined,
+        refreshToken: rawRefreshToken ? `${rawRefreshToken.substring(0, 10)}...[REDACTED]` : undefined,
         expiresAt: connection.tokens?.expires_at || connection.expires_at,
         tokenType: connection.tokens?.token_type || connection.token_type || 'Bearer',
         scopes: connection.tokens?.scope || connection.scope || connection.scopes,
       };
 
       return {
-        hasTokens: !!(tokenInfo.accessToken || tokenInfo.refreshToken),
-        tokenInfo: tokenInfo.accessToken || tokenInfo.refreshToken ? tokenInfo : undefined,
+        hasTokens: !!(rawAccessToken || rawRefreshToken),
+        tokenInfo: rawAccessToken || rawRefreshToken ? tokenInfo : undefined,
         connection: connection,
         alloyApiKey: this.config.alloyApiKey ? `${this.config.alloyApiKey.substring(0, 10)}...` : undefined, // Masked for security
       };

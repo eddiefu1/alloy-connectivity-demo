@@ -129,15 +129,15 @@ When you run the demo successfully, you should see output similar to:
 ==================================================
 STEP 1: Authentication Flow
 ==================================================
-✓ API Key configured: TWsxXkP4On...
-✓ User ID: 690674c276dcda35a40b242d
-✓ Connection ID: 6911017b4d2bcbfd4ce727fe
+✓ API Key configured: [REDACTED]
+✓ User ID: [REDACTED]
+✓ Connection ID: [REDACTED]
 
 STEP 2: Connect to Integration
 ==================================================
-   Testing connection: 6911017b4d2bcbfd4ce727fe
+   Testing connection: [REDACTED]
 ✓ Connection verified and working!
-✓ Connection ID: 6911017b4d2bcbfd4ce727fe
+✓ Connection ID: [REDACTED]
 ✓ API calls are functional
 
 STEP 3: Read Data - Fetch Pages
@@ -148,15 +148,15 @@ STEP 3: Read Data - Fetch Pages
 STEP 4: Write Data - Create New Page
 ==================================================
 ✅ Page created successfully!
-   Page ID: 2a6445ce-1cdc-81a0-b142-fbeaf3c972a5
-   URL: https://www.notion.so/Project-Planning-Created-via-Alloy-API-2a6445ce1cdc81a0b142fbeaf3c972a5
+   Page ID: [REDACTED]
+   URL: [REDACTED]
 
 STEP 5: Update Data - Update Existing Page
 ==================================================
-   Using newly created page: 2a6445ce-1cdc-81a0-b142-fbeaf3c972a5
+   Using newly created page: [REDACTED]
 ✅ Page updated successfully!
-   Updated page ID: 2a6445ce-1cdc-81a0-b142-fbeaf3c972a5
-   Updated URL: https://www.notion.so/Project-Planning-Created-via-Alloy-API-2a6445ce1cdc81a0b142fbeaf3c972a5
+   Updated page ID: [REDACTED]
+   Updated URL: [REDACTED]
 ```
 
 ## Troubleshooting
