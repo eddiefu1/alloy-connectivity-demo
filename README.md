@@ -105,8 +105,9 @@ This demo fulfills all requirements:
    - Copy your User ID
 
    **Get your Connection ID:**
-   - Complete OAuth flow: `npm run connect-notion`
-   - Or find existing connections: `npm run find-notion-connection`
+   - **Recommended:** Test all connections: `npm run test-all-connections` (finds working connections)
+   - Complete OAuth flow: `npm run connect-notion` (creates new connection)
+   - Or find existing connections: `npm run find-notion-connection` (lists all connections)
    - Or get from Alloy Dashboard → Connections
    
    **Quick Setup:** See [SETUP_ENV_KEYS.md](SETUP_ENV_KEYS.md) for detailed setup instructions with your API keys.
@@ -382,6 +383,9 @@ npm run connect-notion
 # Find existing Notion connections
 npm run find-notion-connection
 
+# Test all connections to find working ones (RECOMMENDED)
+npm run test-all-connections
+
 # List available connectors
 npm run list-connectors
 
@@ -435,6 +439,7 @@ alloy-connectivity-demo/
 - [Endpoint Pattern Summary](docs/endpoint-pattern-summary.md) - API endpoint patterns
 - [Getting Tokens](docs/getting-tokens.md) - How to access tokens from Notion and Alloy
 - [API Key Setup](docs/api-key-setup.md) - API key setup and troubleshooting guide
+- [Finding Working Connections](docs/finding-working-connections.md) - How to find working connection IDs
 - [Environment Setup](docs/environment-setup.md) - Development and production environment configuration
 - [Access Tokens Guide](docs/access-tokens-guide.md) - Access tokens for Alloy and Notion
 - [Quick Setup - API Keys](SETUP_ENV_KEYS.md) - Quick setup guide with your API keys
