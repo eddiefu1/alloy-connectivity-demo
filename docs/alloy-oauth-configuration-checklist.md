@@ -52,13 +52,13 @@ If the callback arrives without `?code=...`, the flow failed at Alloy's processi
 - [ ] User ID format is correct (should match what's in your `.env` file)
 - [ ] User ID is from the same account as your API key
 - [ ] User ID has the correct format:
-  - MongoDB ObjectId: `690674c276dcda35a40b242d` (24 hex characters)
-  - UUID format: `12345678-1234-1234-1234-123456789abc`
-  - User prefix: `user_abc123...`
+  - MongoDB ObjectId: `690674c276dcda35a40b242d` (24 hex characters) - example format
+  - UUID format: `12345678-1234-1234-1234-123456789abc` - example format
+  - User prefix: `user_abc123...` - example format
 
-**Current User ID in `.env`:**
+**User ID in `.env` should look like:**
 ```
-ALLOY_USER_ID=690674c276dcda35a40b242d
+ALLOY_USER_ID=your_actual_user_id_here
 ```
 
 ### 4. Check Connector/Integration Status
@@ -110,7 +110,7 @@ ALLOY_USER_ID=690674c276dcda35a40b242d
 Test your API key with a simple API call:
 
 ```bash
-curl -X GET https://production.runalloy.com/api/users/690674c276dcda35a40b242d/credentials \
+curl -X GET https://production.runalloy.com/api/users/YOUR_USER_ID/credentials \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "x-api-version: 2025-09"
 ```
@@ -126,7 +126,7 @@ When you initiate OAuth, check the generated OAuth URL:
 3. Check the OAuth URL that's generated
 4. Verify it contains:
    - `redirectUri=http://localhost:3000/oauth/callback` (URL-encoded)
-   - `userId=690674c276dcda35a40b242d`
+   - `userId=YOUR_USER_ID`
    - Correct connector ID (`notion`)
 
 ### Step 3: Monitor Server Logs
@@ -224,7 +224,7 @@ Run this to test your Alloy configuration:
 
 ```bash
 # Test API key and list connections
-curl -X GET https://production.runalloy.com/api/users/690674c276dcda35a40b242d/credentials \
+curl -X GET https://production.runalloy.com/api/users/YOUR_USER_ID/credentials \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "x-api-version: 2025-09" \
   | jq .
@@ -238,7 +238,7 @@ curl -X POST https://production.runalloy.com/connectors/notion/credentials \
     "connectorId": "notion",
     "authenticationType": "oauth2",
     "redirectUri": "http://localhost:3000/oauth/callback",
-    "userId": "690674c276dcda35a40b242d"
+    "userId": "YOUR_USER_ID"
   }' \
   | jq .
 ```

@@ -112,7 +112,7 @@ This will:
 ==================================================
 STEP 1: Authentication Flow
 ==================================================
-Authenticating user 690674c276dcda35a40b242d...
+Authenticating user your_user_id_here...
 ✓ User authenticated successfully
 
 ==================================================

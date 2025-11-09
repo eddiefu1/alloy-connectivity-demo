@@ -52,8 +52,8 @@ npm install
 
 3. **Add your credentials**
    ```env
-   ALLOY_API_KEY=your_actual_api_key_here
-   ALLOY_USER_ID=your_actual_user_id_here
+   ALLOY_API_KEY=your_api_key_here
+   ALLOY_USER_ID=your_user_id_here
    CONNECTION_ID=your_connection_id_here
    ```
 
