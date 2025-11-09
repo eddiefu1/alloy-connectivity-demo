@@ -20,7 +20,7 @@ The OAuth flow should work without explicitly passing userId. The code has been 
 **Check your `.env` file:**
 ```env
 ALLOY_API_KEY=your_api_key_here
-ALLOY_USER_ID=690674c276dcda35a40b242d  # This is used for JWT token generation, not OAuth
+ALLOY_USER_ID=your_user_id_here  # This is used for JWT token generation, not OAuth
 ALLOY_BASE_URL=https://api.runalloy.com
 ```
 
@@ -44,9 +44,9 @@ If the API still requires userId, you may need to find the correct format:
    - Go to your profile/settings
    - Look for your User ID (might be in Account Settings or API Settings)
    - User IDs typically look like:
-     - `user_abc123...`
+     - `user_abc123...` (string prefix format)
      - UUID format: `12345678-1234-1234-1234-123456789abc`
-     - Or a MongoDB ObjectId format like your current `690674c276dcda35a40b242d`
+     - Or a MongoDB ObjectId format: `690674c276dcda35a40b242d` (24 hex characters)
 
 2. **Try API Endpoints:**
    ```bash

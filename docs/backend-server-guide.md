@@ -48,7 +48,7 @@ Content-Type: application/json
 {
   "success": true,
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "userId": "690674c276dcda35a40b242d"
+  "userId": "your_user_id_here"
 }
 ```
 
