@@ -78,16 +78,38 @@ This demo fulfills all requirements:
    ```
 
 4. **Edit `.env` with your Alloy credentials**
+   
+   Create a `.env` file in the project root:
    ```env
-   ALLOY_API_KEY=your_api_key_here
+   # Production API Key (recommended)
+   ALLOY_ENVIRONMENT=production
+   ALLOY_API_KEY=TWsxXkP4OngtBYRl1_soA
+   
+   # Development API Key (alternative)
+   # ALLOY_ENVIRONMENT=development
+   # ALLOY_API_KEY=M4FRCFAQaciuUMF2lKwQv
+   
+   # Your User ID (get from Alloy Dashboard)
    ALLOY_USER_ID=your_user_id_here
-   ALLOY_BASE_URL=https://api.runalloy.com
+   
+   # Base URL (both dev and prod use the same URL)
+   ALLOY_BASE_URL=https://production.runalloy.com
+   
+   # Connection ID (obtained after OAuth flow)
+   CONNECTION_ID=your_connection_id_here
    ```
 
-   **Get your credentials:**
+   **Get your User ID:**
    - Log in to [Alloy Dashboard](https://app.runalloy.com)
-   - Go to **Settings → API Keys**
-   - Copy your **API Key** and **User ID**
+   - Navigate to **Settings** → **API Keys**
+   - Copy your User ID
+
+   **Get your Connection ID:**
+   - Complete OAuth flow: `npm run connect-notion`
+   - Or find existing connections: `npm run find-notion-connection`
+   - Or get from Alloy Dashboard → Connections
+   
+   **Quick Setup:** See [SETUP_ENV_KEYS.md](SETUP_ENV_KEYS.md) for detailed setup instructions with your API keys.
 
 ## 📖 Usage
 
@@ -140,9 +162,10 @@ npm run dev
 
 This will:
 1. **Authenticate** with Alloy API
-2. **Read** existing pages from Notion
-3. **Write** a new page to Notion
-4. **Update** an existing page in Notion
+2. **Verify Connection** to Notion (tests connection with real API call)
+3. **Read** existing pages from Notion
+4. **Write** a new page to Notion (with page ID and URL)
+5. **Update** an existing page in Notion (using the created page ID)
 
 #### Example Output
 
@@ -152,28 +175,37 @@ This will:
 ==================================================
 STEP 1: Authentication Flow
 ==================================================
-Authenticating user your_user_id_here...
-✓ User authenticated successfully
+✓ API Key configured: TWsxXkP4On...
+✓ User ID: 690674c276dcda35a40b242d
+✓ Connection ID: 6911017b4d2bcbfd4ce727fe
 
+STEP 2: Connect to Integration
 ==================================================
+   Testing connection: 6911017b4d2bcbfd4ce727fe
+✓ Connection verified and working!
+✓ Connection ID: 6911017b4d2bcbfd4ce727fe
+✓ API calls are functional
+
 STEP 3: Read Data - Fetch Pages
 ==================================================
-📖 Reading pages from integration notion...
-✓ Successfully read 42 page records
+✓ Successfully read 0 page records
+   No pages found in your Notion workspace
 
-==================================================
 STEP 4: Write Data - Create New Page
 ==================================================
-✍️  Creating new page in Notion...
-Data to write: {
-  "title": "Project Planning",
-  "content": "This is a new page created via Alloy API",
-  "author": "John Doe",
-  "tags": ["project", "planning"],
-  "status": "active"
-}
-✓ Successfully created page
 ✅ Page created successfully!
+   Page ID: 2a6445ce-1cdc-81a0-b142-fbeaf3c972a5
+   URL: https://www.notion.so/Project-Planning-Created-via-Alloy-API-2a6445ce1cdc81a0b142fbeaf3c972a5
+
+STEP 5: Update Data - Update Existing Page
+==================================================
+   Using newly created page: 2a6445ce-1cdc-81a0-b142-fbeaf3c972a5
+✅ Page updated successfully!
+   Updated page ID: 2a6445ce-1cdc-81a0-b142-fbeaf3c972a5
+   Updated URL: https://www.notion.so/Project-Planning-Created-via-Alloy-API-2a6445ce1cdc81a0b142fbeaf3c972a5
+
+   💡 Page ID saved: 2a6445ce-1cdc-81a0-b142-fbeaf3c972a5
+   💡 Page URL: https://www.notion.so/Project-Planning-Created-via-Alloy-API-2a6445ce1cdc81a0b142fbeaf3c972a5
 ```
 
 ## 🏗️ Architecture
@@ -182,12 +214,19 @@ Data to write: {
 
 ```
 src/
-├── config.ts              # Configuration management
-├── alloy-client.ts        # Node.js SDK client wrapper
-├── rest-api-example.ts    # REST API implementation
-├── oauth-flow.ts          # OAuth 2.0 flow handler
-├── server.ts              # Express server with API endpoints
-└── demo.ts                # Main demo orchestration
+├── config.ts                    # Configuration management
+├── alloy-client.ts              # Node.js SDK client wrapper
+├── notion-client.ts             # Notion-specific client (uses Connectivity API)
+├── rest-api-example.ts          # REST API implementation
+├── oauth-flow.ts                # OAuth 2.0 flow handler
+├── server.ts                    # Express server with API endpoints
+├── demo.ts                      # Main demo orchestration
+├── connect-notion.ts            # OAuth connection script
+├── find-notion-connection.ts    # Find existing connections
+├── test-api-auth.ts             # API authentication tester
+├── test-notion-connection.ts    # Notion connection tester
+├── get-tokens.ts                # Get token information
+└── show-tokens.ts               # Show token information
 ```
 
 ### API Endpoints
@@ -203,30 +242,48 @@ The server provides the following endpoints:
 
 ## 🔧 API Reference
 
-### Using the Node.js SDK
+### Using the NotionClient (Recommended)
 
 ```typescript
-import { AlloyClient } from './src/alloy-client.js';
+import { NotionClient } from './src/notion-client.js';
 import { getConfig } from './src/config.js';
 
 const config = getConfig();
-const client = new AlloyClient(config);
+const connectionId = process.env.CONNECTION_ID;
+const notionClient = new NotionClient(config, connectionId);
 
-// Authenticate user
-await client.authenticateUser(config.alloyUserId);
-
-// Read pages from Notion
-const pages = await client.readPages();
+// Search pages
+const pages = await notionClient.searchPages(
+  undefined, // query (optional)
+  { value: 'page', property: 'object' } // filter
+);
 
 // Create a new page
-await client.createPage({
-  title: 'New Page',
-  content: 'Page content',
+const newPage = await notionClient.createPage({
+  parent: {
+    type: 'workspace',
+    workspace: true,
+  },
+  properties: {
+    title: {
+      type: 'title',
+      title: [{ type: 'text', text: { content: 'New Page' } }],
+    },
+  },
 });
 
+// Get page ID and URL
+const pageId = newPage.id;
+const pageUrl = newPage.url;
+
 // Update an existing page
-await client.updatePage(pageId, {
-  title: 'Updated Title',
+const updatedPage = await notionClient.updatePage(pageId, {
+  properties: {
+    title: {
+      type: 'title',
+      title: [{ type: 'text', text: { content: 'Updated Title' } }],
+    },
+  },
 });
 ```
 
@@ -312,20 +369,38 @@ This demo focuses on **Notion** integration. Alloy supports 200+ integrations, a
 ### Available Scripts
 
 ```bash
+# Run main demo (authentication + read + write + update)
+npm run dev
+
 # Start development server
 npm run server
 
-# Run main demo
-npm run dev
-
 # Connect Notion via OAuth
 npm run connect-notion
+
+# Find existing Notion connections
+npm run find-notion-connection
 
 # List available connectors
 npm run list-connectors
 
 # List your connections
 npm run list-connections
+
+# Test API authentication
+npm run test-api-auth
+
+# Test API authentication (advanced)
+npm run test-api-auth-advanced
+
+# Test Notion connection
+npm run test-notion-connection
+
+# Get token information
+npm run get-tokens <connectionId>
+
+# Show token information
+npm run show-tokens [connectionId]
 
 # Test OAuth flow
 npm run test-oauth
@@ -357,6 +432,12 @@ alloy-connectivity-demo/
 - [Developer Guide](docs/developer-guide.md) - Comprehensive development guide
 - [Quick Reference](docs/quick-reference.md) - Quick reference for common tasks
 - [Endpoint Pattern Summary](docs/endpoint-pattern-summary.md) - API endpoint patterns
+- [Getting Tokens](docs/getting-tokens.md) - How to access tokens from Notion and Alloy
+- [API Key Setup](docs/api-key-setup.md) - API key setup and troubleshooting guide
+- [Environment Setup](docs/environment-setup.md) - Development and production environment configuration
+- [Access Tokens Guide](docs/access-tokens-guide.md) - Access tokens for Alloy and Notion
+- [Quick Setup - API Keys](SETUP_ENV_KEYS.md) - Quick setup guide with your API keys
+- [REST API Auth Setup](REST_API_AUTH_SETUP.md) - REST API authentication setup guide
 - [Setup Guide](SETUP.md) - Detailed setup instructions with troubleshooting
 - [Examples](EXAMPLES.md) - Usage examples and code samples
 
@@ -381,6 +462,17 @@ alloy-connectivity-demo/
 - Make sure you've completed the OAuth flow
 - Verify the Connection ID in your `.env` file
 - Ensure you have pages in your Notion workspace
+
+**"Credential not found" or "Invalid Authorization"**
+- Verify your API key is correct and has Connectivity API permissions
+- Test your API key: `npm run test-api-auth`
+- Check [API Key Setup Guide](docs/api-key-setup.md) for detailed troubleshooting
+- Ensure you're using the correct base URL: `https://production.runalloy.com`
+
+**"Connection not found in list, but API calls work"**
+- This is normal - some connections may work for API calls even if not in the list
+- The connection verification step tests the connection with a real API call
+- If API calls work, the connection is valid and functional
 
 ## 🔒 Security Best Practices
 

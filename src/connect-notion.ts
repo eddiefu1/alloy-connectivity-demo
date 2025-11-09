@@ -80,7 +80,7 @@ async function connectNotion() {
       }
     });
 
-    server.listen(port, () => {
+    server.listen(port, '127.0.0.1', () => {
       console.log(`Server listening on http://localhost:${port}`);
       console.log('Waiting for OAuth callback...\n');
 

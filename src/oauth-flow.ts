@@ -12,8 +12,11 @@ export class AlloyOAuthFlow {
 
   constructor() {
     this.config = getConfig();
+    // OAuth and credentials endpoints use production.runalloy.com
+    // See docs/endpoint-pattern-summary.md for details
+    const baseUrl = this.config.alloyBaseUrl || 'https://production.runalloy.com';
     this.client = axios.create({
-      baseURL: 'https://production.runalloy.com',
+      baseURL: baseUrl,
       headers: {
         'Authorization': `Bearer ${this.config.alloyApiKey}`,
         'x-api-version': this.apiVersion,
@@ -64,33 +67,76 @@ export class AlloyOAuthFlow {
    * Handle OAuth callback after user authorization
    * 
    * @param connectorId - The ID of the connector
-   * @param code - The authorization code from the OAuth callback
+   * @param code - The authorization code from the OAuth callback (optional if tokens are provided)
    * @param state - The state parameter from the OAuth callback (optional)
+   * @param credentialId - The credential ID from OAuth initiation (optional)
+   * @param accessToken - Access token from OAuth callback (optional)
+   * @param refreshToken - Refresh token from OAuth callback (optional)
    * @returns Connection/credential information including connection ID
    */
   async handleOAuthCallback(
     connectorId: string,
-    code: string,
-    state?: string
+    code?: string,
+    state?: string,
+    credentialId?: string,
+    accessToken?: string,
+    refreshToken?: string
   ): Promise<{ connectionId: string; credentialId: string }> {
     try {
       if (!this.config.alloyUserId) {
         throw new Error('ALLOY_USER_ID is required in .env file for OAuth callback');
       }
 
-      const callbackBody: any = {
-        code: code,
-        userId: this.config.alloyUserId,
-      };
+      // Alloy API expects both access_token and refresh_token
+      // If we have tokens, use them; otherwise try with code
+      let callbackBody: any;
+      
+      if (accessToken && refreshToken) {
+        // Use tokens if provided (this is what Alloy expects)
+        console.log('Using access_token and refresh_token for callback');
+        callbackBody = {
+          access_token: accessToken,
+          refresh_token: refreshToken,
+          userId: this.config.alloyUserId,
+        };
+        
+        // Include credentialId if provided
+        if (credentialId) {
+          callbackBody.credentialId = credentialId;
+        }
+      } else if (code) {
+        // Fall back to authorization code flow
+        console.log('Using authorization code for callback');
+        if (credentialId) {
+          callbackBody = {
+            credentialId: credentialId,
+            code: code,
+            userId: this.config.alloyUserId,
+          };
+        } else {
+          callbackBody = {
+            code: code,
+            userId: this.config.alloyUserId,
+          };
+        }
+      } else {
+        throw new Error('Either authorization code or both access_token and refresh_token are required');
+      }
 
+      // Include state if provided
       if (state) {
         callbackBody.state = state;
       }
+
+      console.log(`Calling callback endpoint: /connectors/${connectorId}/credentials/callback`);
+      console.log(`Request body:`, JSON.stringify(callbackBody, null, 2));
 
       const response = await this.client.post(
         `/connectors/${connectorId}/credentials/callback`,
         callbackBody
       );
+
+      console.log(`Callback response:`, JSON.stringify(response.data, null, 2));
 
       return {
         connectionId: response.data.connectionId || response.data.id,
@@ -99,7 +145,8 @@ export class AlloyOAuthFlow {
     } catch (error: any) {
       console.error(`Failed to handle OAuth callback for ${connectorId}:`, error.message);
       if (error.response?.data) {
-        console.error('API Error:', error.response.data);
+        console.error('API Error Response:', JSON.stringify(error.response.data, null, 2));
+        console.error('API Error Status:', error.response.status);
       }
       throw error;
     }
@@ -128,9 +175,10 @@ export class AlloyOAuthFlow {
 
   /**
    * Get connection details by connection ID
+   * This includes connection metadata, status, and potentially token information
    * 
    * @param connectionId - The connection ID
-   * @returns Connection details
+   * @returns Connection details including token information if available
    */
   async getConnection(connectionId: string): Promise<any> {
     try {
@@ -141,6 +189,53 @@ export class AlloyOAuthFlow {
       return response.data;
     } catch (error: any) {
       console.error(`Failed to get connection ${connectionId}:`, error.message);
+      if (error.response?.data) {
+        console.error('API Error:', error.response.data);
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Get token information for a connection
+   * This retrieves access token details (if available) from the connection
+   * Note: For security, Alloy may not expose raw tokens, but will provide token metadata
+   * 
+   * @param connectionId - The connection ID
+   * @returns Token information including expiration, scopes, etc.
+   */
+  async getConnectionTokens(connectionId: string): Promise<{
+    hasTokens: boolean;
+    tokenInfo?: any;
+    connection: any;
+    alloyApiKey?: string;
+  }> {
+    try {
+      const connection = await this.getConnection(connectionId);
+      
+      // Extract token information from connection object
+      // The structure may vary, but tokens are typically in:
+      // - connection.tokens
+      // - connection.credentials
+      // - connection.authentication
+      // - connection.metadata
+      
+      const tokenInfo = {
+        accessToken: connection.tokens?.access_token || connection.access_token || connection.credentials?.access_token,
+        refreshToken: connection.tokens?.refresh_token || connection.refresh_token || connection.credentials?.refresh_token,
+        expiresAt: connection.tokens?.expires_at || connection.expires_at,
+        tokenType: connection.tokens?.token_type || connection.token_type || 'Bearer',
+        scopes: connection.tokens?.scope || connection.scope || connection.scopes,
+      };
+
+      return {
+        hasTokens: !!(tokenInfo.accessToken || tokenInfo.refreshToken),
+        tokenInfo: tokenInfo.accessToken || tokenInfo.refreshToken ? tokenInfo : undefined,
+        connection: connection,
+        alloyApiKey: this.config.alloyApiKey ? `${this.config.alloyApiKey.substring(0, 10)}...` : undefined, // Masked for security
+      };
+    } catch (error: any) {
+      console.error(`Failed to get connection tokens for ${connectionId}:`, error.message);
       if (error.response?.data) {
         console.error('API Error:', error.response.data);
       }
