@@ -49,8 +49,8 @@ async function getTokens() {
     
     if (tokenInfo.tokenInfo) {
       console.log('\n   Token Details:');
-      console.log(`   Access Token: ${tokenInfo.tokenInfo.accessToken ? tokenInfo.tokenInfo.accessToken.substring(0, 20) + '...' : 'Not available'}`);
-      console.log(`   Refresh Token: ${tokenInfo.tokenInfo.refreshToken ? tokenInfo.tokenInfo.refreshToken.substring(0, 20) + '...' : 'Not available'}`);
+      console.log(`   Access Token: ${tokenInfo.tokenInfo.accessToken ? '[REDACTED]' : 'Not available'}`);
+      console.log(`   Refresh Token: ${tokenInfo.tokenInfo.refreshToken ? '[REDACTED]' : 'Not available'}`);
       console.log(`   Token Type: ${tokenInfo.tokenInfo.tokenType || 'N/A'}`);
       console.log(`   Expires At: ${tokenInfo.tokenInfo.expiresAt || 'N/A'}`);
       console.log(`   Scopes: ${tokenInfo.tokenInfo.scopes || 'N/A'}`);
