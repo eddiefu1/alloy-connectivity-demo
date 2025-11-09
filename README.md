@@ -2,6 +2,46 @@
 
 A complete demonstration of Alloy's Connectivity API showcasing **OAuth authentication flows** and **data synchronization (read and write operations)** with Notion. This project uses both the **REST API** and **Node.js SDK** to interact with Alloy's Connectivity API.
 
+## 📋 What This Application Does
+
+This application demonstrates how to integrate with **Alloy Automation's Connectivity API** to:
+
+1. **Connect Integrations via OAuth 2.0**: 
+   - Initiate OAuth flows programmatically
+   - Handle OAuth callbacks
+   - Create authenticated connections with third-party services (e.g., Notion)
+   - Manage connection lifecycle
+
+2. **Synchronize Data**:
+   - **Read operations**: Fetch data from connected integrations (e.g., read pages from Notion)
+   - **Write operations**: Create new data in connected integrations (e.g., create pages in Notion)
+   - **Update operations**: Modify existing data (e.g., update Notion pages)
+
+3. **Manage Connections**:
+   - List all connections
+   - Check connection status
+   - Use existing connections
+   - Handle connection errors gracefully
+
+### Key Features
+
+- ✅ **Complete OAuth 2.0 Flow**: Full implementation of OAuth authentication with Alloy
+- ✅ **REST API Integration**: Direct API calls to Alloy's Connectivity API
+- ✅ **Node.js SDK Support**: Uses Alloy's official SDK for simplified integration
+- ✅ **Web Interface**: User-friendly HTML interface for connecting integrations
+- ✅ **Diagnostics Tools**: Comprehensive debugging and diagnostic endpoints
+- ✅ **Error Handling**: Robust error handling with helpful error messages
+- ✅ **Connection Management**: Tools to list, check, and manage connections
+- ✅ **Production Ready**: Configured for production environment with proper security
+
+### Use Cases
+
+- **Integration Development**: Learn how to integrate Alloy's Connectivity API into your applications
+- **OAuth Implementation**: Understand how to implement OAuth flows with Alloy
+- **Data Synchronization**: See how to read and write data through Alloy's API
+- **Connection Management**: Learn how to manage and monitor connections
+- **Error Handling**: See best practices for handling OAuth and API errors
+
 ## 🎯 Requirements Met
 
 This demo fulfills all requirements:
@@ -254,12 +294,14 @@ const { connectionId } = await oauthFlow.handleOAuthCallback(
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `ALLOY_API_KEY` | Yes | Your Alloy API key |
-| `ALLOY_USER_ID` | Yes | Your Alloy user ID |
-| `CONNECTION_ID` | Yes* | Connection ID after OAuth flow |
+| `ALLOY_API_KEY` | Yes | Your Alloy API key (get from [Alloy Dashboard](https://app.runalloy.com)) |
+| `ALLOY_USER_ID` | Yes | Your Alloy user ID (get from [Alloy Dashboard](https://app.runalloy.com)) |
+| `CONNECTION_ID` | Yes* | Connection ID after OAuth flow (obtained after connecting Notion) |
 | `ALLOY_BASE_URL` | No | API base URL (default: `https://api.runalloy.com`) |
 
 \* Required for data operations. Get it after completing the OAuth flow.
+
+**⚠️ Security Note**: Never commit your `.env` file to version control. The `.env` file is already in `.gitignore` and will not be committed.
 
 ## 🔌 Supported Integrations
 

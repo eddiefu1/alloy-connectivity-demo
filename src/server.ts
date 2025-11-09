@@ -77,23 +77,35 @@ app.get('/api/diagnose', async (req: Request, res: Response) => {
         }
       });
 
-      // Check for existing Notion connections
+      // Check for existing Notion connections - check multiple possible fields
       const notionConnections = connections.filter((conn: any) => 
-        conn.connectorId === 'notion' || conn.integrationId === 'notion'
+        conn.connectorId === 'notion' || 
+        conn.integrationId === 'notion' ||
+        conn.type === 'notion-oauth2' ||
+        (conn.type && conn.type.includes('notion')) ||
+        (conn.name && conn.name.toLowerCase().includes('notion'))
       );
       if (notionConnections.length > 0) {
+        const latestConn = notionConnections[notionConnections.length - 1];
+        const latestConnId = latestConn.credentialId || latestConn.id || latestConn.connectionId;
+        
         diagnostics.tests.push({
           name: 'Existing Notion Connections',
           status: 'info',
           message: `Found ${notionConnections.length} existing Notion connection(s)`,
           data: {
+            totalConnections: connections.length,
+            notionConnections: notionConnections.length,
             connections: notionConnections.map((conn: any) => ({
-              id: conn.id,
-              connectionId: conn.id || conn.connectionId,
-              status: conn.status
+              credentialId: conn.credentialId,
+              id: conn.id || conn.credentialId || conn.connectionId,
+              connectionId: conn.id || conn.connectionId || conn.credentialId,
+              name: conn.name,
+              type: conn.type,
+              createdAt: conn.createdAt
             }))
           },
-          suggestion: 'You may already have a Notion connection. Try using an existing connection ID.'
+          suggestion: `You already have ${notionConnections.length} Notion connection(s)! You can use an existing connection. The most recent connection ID is: ${latestConnId}. Add this to your .env file: CONNECTION_ID=${latestConnId}`
         });
       }
     } catch (error: any) {
@@ -444,13 +456,24 @@ Note: User IDs are typically:
  */
 app.get('/oauth/callback', async (req: Request, res: Response) => {
   try {
-    // Log all query parameters for debugging
+    // Log ALL request details for debugging
     console.log('\n📥 OAuth Callback Received (GET)');
-    console.log('   Method: GET');
-    console.log('   Query parameters:', JSON.stringify(req.query, null, 2));
+    console.log('   ========================================');
+    console.log('   Method:', req.method);
     console.log('   Full URL:', req.url);
+    console.log('   Original URL:', req.originalUrl);
+    console.log('   Protocol:', req.protocol);
+    console.log('   Host:', req.get('host'));
+    console.log('   Path:', req.path);
+    console.log('   Query parameters:', JSON.stringify(req.query, null, 2));
+    console.log('   Query string:', req.url.split('?')[1] || 'none');
     console.log('   Headers:', JSON.stringify(req.headers, null, 2));
     console.log('   Body (if any):', JSON.stringify(req.body, null, 2));
+    console.log('   ========================================');
+    
+    // Also log what the browser sees
+    const fullCallbackUrl = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
+    console.log('   🔗 Full Callback URL:', fullCallbackUrl);
     
     // Try to get code from query parameters first
     let code = req.query.code as string;
@@ -500,27 +523,53 @@ app.get('/oauth/callback', async (req: Request, res: Response) => {
 
     // Check if code is present
     if (!code) {
-      console.error('   ❌ No authorization code found');
-      console.error('   Checked: query params, URL hash/fragment');
-      console.error('   Available query params:', Object.keys(req.query));
+      console.error('\n   ❌❌❌ NO AUTHORIZATION CODE FOUND ❌❌❌');
+      console.error('   ========================================');
+      console.error('   Checked locations:');
+      console.error('     - Query parameters: ' + (req.query.code ? 'FOUND' : 'NOT FOUND'));
+      console.error('     - URL hash/fragment: ' + (urlHash ? 'EXISTS BUT NO CODE' : 'NONE'));
+      console.error('   Available query params:', Object.keys(req.query).join(', ') || 'NONE');
       console.error('   Full request URL:', req.url);
-      console.error('   ⚠️  IMPORTANT: Check what URL you were redirected to!');
-      console.error('      - Look at browser address bar');
-      console.error('      - Check if code is in query string (?code=...) or hash (#code=...)');
-      console.error('      - Verify the OAuth URL from Alloy includes the redirectUri parameter');
+      console.error('   Original URL:', req.originalUrl);
+      console.error('   Query string:', req.url.split('?')[1] || 'EMPTY');
+      console.error('   ========================================');
+      console.error('   ⚠️  CRITICAL DEBUGGING INFO:');
+      console.error('      1. Check browser address bar - What URL are you on?');
+      console.error('      2. Copy the EXACT URL from browser address bar');
+      console.error('      3. Check if Alloy redirected to a different URL');
+      console.error('      4. Verify OAuth URL in server logs contains correct redirectUri');
+      console.error('      5. Check Alloy dashboard for OAuth errors');
+      console.error('   ========================================');
       
       // Try to check if connection was created anyway (sometimes Alloy creates it without redirecting with code)
       console.log('   🔍 Attempting to check connection status by listing connections...');
       try {
         const connections = await oauthFlow.listConnections();
+        // Filter for Notion connections - check multiple possible fields
         const notionConnections = connections.filter((conn: any) => 
-          conn.connectorId === 'notion' || conn.integrationId === 'notion'
+          conn.connectorId === 'notion' || 
+          conn.integrationId === 'notion' ||
+          conn.type === 'notion-oauth2' ||
+          (conn.type && conn.type.includes('notion')) ||
+          (conn.name && conn.name.toLowerCase().includes('notion'))
         );
+        
+        console.log(`   Found ${connections.length} total connections`);
+        console.log(`   Found ${notionConnections.length} Notion connections`);
         
         if (notionConnections.length > 0) {
           console.log('   ✅ Found existing Notion connection(s)!');
+          // Get the most recent connection (last in array, or sort by createdAt)
           const latestConnection = notionConnections[notionConnections.length - 1];
-          const connectionId = latestConnection.id || latestConnection.connectionId;
+          // Try multiple possible ID fields
+          const connectionId = latestConnection.id || 
+                              latestConnection.connectionId || 
+                              latestConnection.credentialId ||
+                              latestConnection._id;
+          
+          console.log(`   Using connection ID: ${connectionId}`);
+          console.log(`   Connection name: ${latestConnection.name || 'N/A'}`);
+          console.log(`   Connection type: ${latestConnection.type || 'N/A'}`);
           
           return res.send(`
             <html>
@@ -539,11 +588,15 @@ app.get('/oauth/callback', async (req: Request, res: Response) => {
                   <p><strong>Note:</strong> The callback was received without a code parameter, but we found an existing Notion connection.</p>
                 </div>
                 <div class="success">
-                  <p><strong>Connection ID:</strong> <code>${connectionId}</code></p>
-                  <p><strong>Add this to your .env file:</strong></p>
-                  <code>CONNECTION_ID=${connectionId}</code>
+                  <p><strong>✅ Connection Found!</strong></p>
+                  <p><strong>Connection ID (credentialId):</strong> <code>${connectionId}</code></p>
+                  <p><strong>Connection Name:</strong> ${latestConnection.name || 'N/A'}</p>
+                  <p><strong>Connection Type:</strong> ${latestConnection.type || 'N/A'}</p>
+                  <p style="margin-top: 15px;"><strong>Add this to your .env file:</strong></p>
+                  <code style="display: block; padding: 10px; background: #f4f4f4; border-radius: 4px; margin: 10px 0;">CONNECTION_ID=${connectionId}</code>
+                  <p><strong>Note:</strong> You have ${notionConnections.length} total Notion connection(s). You can use any of them.</p>
                 </div>
-                <p style="margin-top: 20px;"><a href="/connect-notion-frontend.html">← Back to Connect Page</a></p>
+                <p style="margin-top: 20px;"><a href="/connect-notion-frontend.html">← Back to Connect Page</a> | <a href="/api/connections">View All Connections</a></p>
               </body>
             </html>
           `);
@@ -730,6 +783,58 @@ app.get('/oauth/callback', async (req: Request, res: Response) => {
 });
 
 /**
+ * Handle OAuth callback (POST endpoint - some OAuth flows use POST)
+ * POST /oauth/callback
+ */
+app.post('/oauth/callback', async (req: Request, res: Response) => {
+  try {
+    console.log('\n📥 OAuth Callback Received (POST)');
+    console.log('   ========================================');
+    console.log('   Method: POST');
+    console.log('   Body:', JSON.stringify(req.body, null, 2));
+    console.log('   Headers:', JSON.stringify(req.headers, null, 2));
+    console.log('   ========================================');
+
+    const { code, state, connectorId } = req.body;
+
+    if (!code) {
+      console.error('   ❌ No authorization code in POST body');
+      return res.status(400).json({
+        success: false,
+        error: 'Authorization code is required',
+        received: {
+          body: req.body,
+          hasCode: !!code,
+          hasState: !!state,
+          hasConnectorId: !!connectorId
+        }
+      });
+    }
+
+    const connector = connectorId || 'notion';
+    const { connectionId, credentialId } = await oauthFlow.handleOAuthCallback(
+      connector,
+      code,
+      state
+    );
+
+    res.json({
+      success: true,
+      connectionId: connectionId,
+      credentialId: credentialId,
+      connectorId: connector
+    });
+  } catch (error: any) {
+    console.error('Error handling OAuth callback (POST):', error.message);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      details: error.response?.data
+    });
+  }
+});
+
+/**
  * Handle OAuth callback (API endpoint)
  * POST /api/oauth/callback
  */
@@ -807,6 +912,34 @@ app.get('/api/connections/:connectionId', async (req: Request, res: Response) =>
     });
   } catch (error: any) {
     console.error('Error getting connection:', error.message);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      details: error.response?.data
+    });
+  }
+});
+
+/**
+ * Check for Notion connections (helper endpoint)
+ * GET /api/connections/notion/check
+ */
+app.get('/api/connections/notion/check', async (req: Request, res: Response) => {
+  try {
+    console.log('\n🔍 Checking for Notion connections...');
+    const connections = await oauthFlow.listConnections();
+    const notionConnections = connections.filter((conn: any) => 
+      conn.connectorId === 'notion' || conn.integrationId === 'notion'
+    );
+    
+    res.json({
+      success: true,
+      connections: notionConnections,
+      count: notionConnections.length,
+      allConnections: connections.length
+    });
+  } catch (error: any) {
+    console.error('Error checking Notion connections:', error.message);
     res.status(500).json({
       success: false,
       error: error.message,
