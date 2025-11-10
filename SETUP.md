@@ -79,16 +79,6 @@ npm start
 
 ## Step 5: Test Your Setup
 
-### Test API Authentication
-
-Before running the demo, test your API key:
-
-```bash
-npm run test-api-auth
-```
-
-This will verify that your API key is working correctly.
-
 ### Test All Connections (Recommended)
 
 Test all your Notion connections to find which ones work for API calls:
@@ -99,25 +89,15 @@ npm run test-all-connections
 
 This will test each connection and identify which ones are functional for API operations.
 
-### Find Existing Connections
+### List Existing Connections
 
-If you already have Notion connections, find them:
-
-```bash
-npm run find-notion-connection
-```
-
-This will list all your Notion connections and suggest a connection ID to use.
-
-### Test Notion Connection
-
-Test a specific connection to Notion:
+If you already have connections, list them:
 
 ```bash
-npm run test-notion-connection
+npm run list-connections
 ```
 
-This will verify that your connection ID works for API calls.
+This will list all your connections and suggest a connection ID to use.
 
 ## Step 6: Run the Demo
 
@@ -129,15 +109,15 @@ When you run the demo successfully, you should see output similar to:
 ==================================================
 STEP 1: Authentication Flow
 ==================================================
-✓ API Key configured: TWsxXkP4On...
-✓ User ID: 690674c276dcda35a40b242d
-✓ Connection ID: 6911017b4d2bcbfd4ce727fe
+✓ API Key configured: [REDACTED]
+✓ User ID: [REDACTED]
+✓ Connection ID: [REDACTED]
 
 STEP 2: Connect to Integration
 ==================================================
-   Testing connection: 6911017b4d2bcbfd4ce727fe
+   Testing connection: [REDACTED]
 ✓ Connection verified and working!
-✓ Connection ID: 6911017b4d2bcbfd4ce727fe
+✓ Connection ID: [REDACTED]
 ✓ API calls are functional
 
 STEP 3: Read Data - Fetch Pages
@@ -148,15 +128,15 @@ STEP 3: Read Data - Fetch Pages
 STEP 4: Write Data - Create New Page
 ==================================================
 ✅ Page created successfully!
-   Page ID: 2a6445ce-1cdc-81a0-b142-fbeaf3c972a5
-   URL: https://www.notion.so/Project-Planning-Created-via-Alloy-API-2a6445ce1cdc81a0b142fbeaf3c972a5
+   Page ID: [REDACTED]
+   URL: [REDACTED]
 
 STEP 5: Update Data - Update Existing Page
 ==================================================
-   Using newly created page: 2a6445ce-1cdc-81a0-b142-fbeaf3c972a5
+   Using newly created page: [REDACTED]
 ✅ Page updated successfully!
-   Updated page ID: 2a6445ce-1cdc-81a0-b142-fbeaf3c972a5
-   Updated URL: https://www.notion.so/Project-Planning-Created-via-Alloy-API-2a6445ce1cdc81a0b142fbeaf3c972a5
+   Updated page ID: [REDACTED]
+   Updated URL: [REDACTED]
 ```
 
 ## Troubleshooting
@@ -178,7 +158,7 @@ STEP 5: Update Data - Update Existing Page
 1. Verify your API key is correct and hasn't been revoked
 2. Check your User ID is correct
 3. Ensure you have internet connectivity
-4. Test your API key: `npm run test-api-auth`
+4. Test your connections: `npm run test-all-connections`
 5. Verify you're using the correct base URL: `https://production.runalloy.com`
 6. Try regenerating your API key in the Alloy dashboard
 7. Ensure your API key has Connectivity API permissions
@@ -189,11 +169,10 @@ STEP 5: Update Data - Update Existing Page
 
 **Solutions**:
 1. **Test all connections (Recommended)**: Run `npm run test-all-connections` to find working connections
-2. **Find existing connections**: Run `npm run find-notion-connection` to see your connections
-3. **Test a specific connection**: Run `npm run test-notion-connection` to verify it works
-4. **Create a new connection**: Run `npm run connect-notion` to create a new OAuth connection
-5. **Verify connection ID**: Make sure the Connection ID in your `.env` file is correct
-6. **Check connection in dashboard**: Go to Alloy Dashboard → Connections to verify
+2. **List existing connections**: Run `npm run list-connections` to see your connections
+3. **Create a new connection**: Run `npm run connect-notion` to create a new OAuth connection
+4. **Verify connection ID**: Make sure the Connection ID in your `.env` file is correct
+5. **Check connection in dashboard**: Go to Alloy Dashboard → Connections to verify
 
 **Note**: Some connection IDs from the list may not work for API calls. Use `npm run test-all-connections` to identify which connections actually work for API operations.
 

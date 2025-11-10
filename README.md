@@ -83,11 +83,11 @@ This demo fulfills all requirements:
    ```env
    # Production API Key (recommended)
    ALLOY_ENVIRONMENT=production
-   ALLOY_API_KEY=TWsxXkP4OngtBYRl1_soA
+   ALLOY_API_KEY=your_api_key_here
    
    # Development API Key (alternative)
    # ALLOY_ENVIRONMENT=development
-   # ALLOY_API_KEY=M4FRCFAQaciuUMF2lKwQv
+   # ALLOY_API_KEY=your_dev_api_key_here
    
    # Your User ID (get from Alloy Dashboard)
    ALLOY_USER_ID=your_user_id_here
@@ -107,7 +107,7 @@ This demo fulfills all requirements:
    **Get your Connection ID:**
    - **Recommended:** Test all connections: `npm run test-all-connections` (finds working connections)
    - Complete OAuth flow: `npm run connect-notion` (creates new connection)
-   - Or find existing connections: `npm run find-notion-connection` (lists all connections)
+   - Or list connections: `npm run list-connections` (lists all connections)
    - Or get from Alloy Dashboard → Connections
    
    For detailed setup instructions, see [SETUP.md](SETUP.md).
@@ -143,11 +143,11 @@ Connect Notion using OAuth 2.0 authentication:
 npm run connect-notion
 ```
 
-#### Option C: Programmatic (API)
+#### Option C: List Existing Connections
 
 ```bash
-# Test OAuth flow programmatically
-npm run test-oauth
+# List existing connections (use if you already have a connection)
+npm run list-connections
 ```
 
 ### Step 2: Data Synchronization
@@ -176,15 +176,15 @@ This will:
 ==================================================
 STEP 1: Authentication Flow
 ==================================================
-✓ API Key configured: TWsxXkP4On...
-✓ User ID: 690674c276dcda35a40b242d
-✓ Connection ID: 6911017b4d2bcbfd4ce727fe
+✓ API Key configured: [REDACTED]
+✓ User ID: [REDACTED]
+✓ Connection ID: [REDACTED]
 
 STEP 2: Connect to Integration
 ==================================================
-   Testing connection: 6911017b4d2bcbfd4ce727fe
+   Testing connection: [REDACTED]
 ✓ Connection verified and working!
-✓ Connection ID: 6911017b4d2bcbfd4ce727fe
+✓ Connection ID: [REDACTED]
 ✓ API calls are functional
 
 STEP 3: Read Data - Fetch Pages
@@ -195,18 +195,18 @@ STEP 3: Read Data - Fetch Pages
 STEP 4: Write Data - Create New Page
 ==================================================
 ✅ Page created successfully!
-   Page ID: 2a6445ce-1cdc-81a0-b142-fbeaf3c972a5
-   URL: https://www.notion.so/Project-Planning-Created-via-Alloy-API-2a6445ce1cdc81a0b142fbeaf3c972a5
+   Page ID: [REDACTED]
+   URL: [REDACTED]
 
 STEP 5: Update Data - Update Existing Page
 ==================================================
-   Using newly created page: 2a6445ce-1cdc-81a0-b142-fbeaf3c972a5
+   Using newly created page: [REDACTED]
 ✅ Page updated successfully!
-   Updated page ID: 2a6445ce-1cdc-81a0-b142-fbeaf3c972a5
-   Updated URL: https://www.notion.so/Project-Planning-Created-via-Alloy-API-2a6445ce1cdc81a0b142fbeaf3c972a5
+   Updated page ID: [REDACTED]
+   Updated URL: [REDACTED]
 
-   💡 Page ID saved: 2a6445ce-1cdc-81a0-b142-fbeaf3c972a5
-   💡 Page URL: https://www.notion.so/Project-Planning-Created-via-Alloy-API-2a6445ce1cdc81a0b142fbeaf3c972a5
+   💡 Page ID saved: [REDACTED]
+   💡 Page URL: [REDACTED]
 ```
 
 ## 🏗️ Architecture
@@ -277,35 +277,14 @@ npm run server
 # Connect Notion via OAuth
 npm run connect-notion
 
-# Find existing Notion connections
-npm run find-notion-connection
-
 # Test all connections to find working ones (RECOMMENDED)
 npm run test-all-connections
-
-# List available connectors
-npm run list-connectors
 
 # List your connections
 npm run list-connections
 
-# Test API authentication
-npm run test-api-auth
-
-# Test API authentication (advanced)
-npm run test-api-auth-advanced
-
-# Test Notion connection
-npm run test-notion-connection
-
-# Get token information
-npm run get-tokens <connectionId>
-
 # Show token information
 npm run show-tokens [connectionId]
-
-# Test OAuth flow
-npm run test-oauth
 
 # Build for production
 npm run build
@@ -317,11 +296,14 @@ npm run build
 alloy-connectivity-demo/
 ├── src/
 │   ├── config.ts              # Configuration management
-│   ├── alloy-client.ts        # SDK client wrapper
-│   ├── rest-api-example.ts    # REST API client
 │   ├── oauth-flow.ts          # OAuth flow handler
+│   ├── notion-client.ts       # Notion API client
 │   ├── server.ts              # Express server
 │   ├── demo.ts                # Main demo
+│   ├── connect-notion.ts      # OAuth connection script
+│   ├── list-connections.ts    # List connections utility
+│   ├── show-tokens.ts         # Token information utility
+│   ├── test-all-connections.ts # Connection testing utility
 │   └── connect-notion-frontend.html  # Web interface
 ├── docs/                      # Documentation
 ├── .env.example              # Environment template
@@ -360,7 +342,7 @@ alloy-connectivity-demo/
 
 **"Credential not found" or "Invalid Authorization"**
 - Verify your API key is correct and has Connectivity API permissions
-- Test your API key: `npm run test-api-auth`
+- Test your connections: `npm run test-all-connections`
 - See the [Setup Guide](SETUP.md) for detailed troubleshooting
 - Ensure you're using the correct base URL: `https://production.runalloy.com`
 

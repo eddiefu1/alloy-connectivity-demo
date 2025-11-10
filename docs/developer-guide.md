@@ -62,7 +62,7 @@ See [Endpoint Pattern Summary](endpoint-pattern-summary.md) for details.
 
 1. **Setup Environment**: Configure `.env` with API key and user ID
 2. **Create Connection**: Run `npm run connect-notion` to create OAuth connection
-3. **Test Connection**: Run `npm run test-notion-connection` to verify
+3. **Test Connection**: Run `npm run test-all-connections` to verify
 4. **Develop**: Use `NotionClient` for API operations
 5. **Test**: Run `npm run dev` to test your code
 

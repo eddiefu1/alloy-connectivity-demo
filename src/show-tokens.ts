@@ -18,7 +18,7 @@ async function showTokens() {
     console.log('-'.repeat(60));
     const config = getConfig();
     console.log(`Environment: ${config.environment}`);
-    console.log(`API Key: ${config.alloyApiKey}`);
+    console.log(`API Key: [REDACTED]`);
     console.log(`API Key (masked): ${config.alloyApiKey.substring(0, 10)}...${config.alloyApiKey.substring(config.alloyApiKey.length - 4)}`);
     console.log(`Base URL: ${config.alloyBaseUrl}`);
     console.log(`User ID: ${config.alloyUserId}`);
@@ -38,15 +38,13 @@ async function showTokens() {
         if (tokenInfo.tokenInfo) {
           console.log('\nToken Details:');
           if (tokenInfo.tokenInfo.accessToken) {
-            const accessToken = tokenInfo.tokenInfo.accessToken;
-            console.log(`Access Token: ${accessToken.substring(0, 20)}...${accessToken.substring(accessToken.length - 10)}`);
+            console.log(`Access Token: [REDACTED]`);
           } else {
             console.log('Access Token: Not available in API response');
           }
           
           if (tokenInfo.tokenInfo.refreshToken) {
-            const refreshToken = tokenInfo.tokenInfo.refreshToken;
-            console.log(`Refresh Token: ${refreshToken.substring(0, 20)}...${refreshToken.substring(refreshToken.length - 10)}`);
+            console.log(`Refresh Token: [REDACTED]`);
           } else {
             console.log('Refresh Token: Not available in API response');
           }
