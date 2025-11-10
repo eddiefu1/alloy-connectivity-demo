@@ -1,6 +1,7 @@
 import { NotionClient } from './notion-client.js';
 import { getConfig } from './config.js';
 import { AlloyOAuthFlow } from './oauth-flow.js';
+import { getConnectionId, getConnectorId } from './connection-utils.js';
 
 /**
  * Main demo function that demonstrates:
@@ -24,7 +25,7 @@ async function runDemo() {
     if (!connectionId) {
       console.log('⚠️  CONNECTION_ID not set in .env file');
       console.log('   Run: npm run connect-notion to create a connection');
-      console.log('   Or: npm run find-notion-connection to find existing connections');
+      console.log('   Or: npm run list-connections notion to find existing connections');
       return;
     }
 
@@ -56,12 +57,12 @@ async function runDemo() {
         const oauthFlow = new AlloyOAuthFlow();
         const connections = await oauthFlow.listConnections();
         const connection = connections.find((conn: any) => {
-          const connId = conn.credentialId || conn.id || conn._id;
+          const connId = getConnectionId(conn);
           return connId === connectionId;
         });
         
         if (connection) {
-          const connectorId = connection.connectorId || connection.connector || connection.integrationId || 'notion';
+          const connectorId = getConnectorId(connection);
           console.log(`✓ Connection details found:`);
           console.log(`   Connection ID (credentialId): ${connectionId}`);
           console.log(`   Connector ID: ${connectorId}`);
@@ -85,7 +86,7 @@ async function runDemo() {
         const errorData = error.response.data;
         if (errorData.error?.code === 'INVALID_INPUT' && errorData.error?.message === 'Credential not found') {
           console.log(`   Error: This connection ID is not valid for API calls`);
-          console.log(`   Please use a valid connection ID from: npm run find-notion-connection`);
+          console.log(`   Please use a valid connection ID from: npm run list-connections notion`);
         } else {
           console.log(`   Error details: ${JSON.stringify(errorData, null, 2)}`);
         }

@@ -79,15 +79,15 @@ npm start
 
 ## Step 5: Test Your Setup
 
-### Test All Connections (Recommended)
+### Verify Connection (Recommended)
 
-Test all your Notion connections to find which ones work for API calls:
+Verify and set your working Notion connection:
 
 ```bash
-npm run test-all-connections
+npm run verify-connection
 ```
 
-This will test each connection and identify which ones are functional for API operations.
+This will test your connections, find a working one, and automatically update your `.env` file.
 
 ### List Existing Connections
 
@@ -158,7 +158,7 @@ STEP 5: Update Data - Update Existing Page
 1. Verify your API key is correct and hasn't been revoked
 2. Check your User ID is correct
 3. Ensure you have internet connectivity
-4. Test your connections: `npm run test-all-connections`
+4. Verify your connection: `npm run verify-connection`
 5. Verify you're using the correct base URL: `https://production.runalloy.com`
 6. Try regenerating your API key in the Alloy dashboard
 7. Ensure your API key has Connectivity API permissions
@@ -168,13 +168,13 @@ STEP 5: Update Data - Update Existing Page
 **Problem**: The integration hasn't been connected yet or the connection ID is invalid.
 
 **Solutions**:
-1. **Test all connections (Recommended)**: Run `npm run test-all-connections` to find working connections
+1. **Verify connection (Recommended)**: Run `npm run verify-connection` to find and set a working connection
 2. **List existing connections**: Run `npm run list-connections` to see your connections
 3. **Create a new connection**: Run `npm run connect-notion` to create a new OAuth connection
 4. **Verify connection ID**: Make sure the Connection ID in your `.env` file is correct
 5. **Check connection in dashboard**: Go to Alloy Dashboard → Connections to verify
 
-**Note**: Some connection IDs from the list may not work for API calls. Use `npm run test-all-connections` to identify which connections actually work for API operations.
+**Note**: Some connection IDs from the list may not work for API calls. Use `npm run verify-connection` to identify which connections actually work and automatically update your `.env` file.
 
 ### Module not found errors
 

@@ -1,6 +1,13 @@
 import { AlloyOAuthFlow } from './oauth-flow.js';
 import { NotionClient } from './notion-client.js';
 import { getConfig } from './config.js';
+import { 
+  filterNotionConnections, 
+  sortConnectionsByDate,
+  getConnectionId,
+  getConnectorId,
+  type Connection 
+} from './connection-utils.js';
 import * as http from 'http';
 import * as url from 'url';
 import { exec } from 'child_process';
@@ -123,31 +130,18 @@ async function connectNotion() {
                 console.log(`   Found ${connections.length} total connections`);
                 
                 // Find connection with matching credentialId or check for newest Notion connection
-                let connection = connections.find((conn: any) => {
-                  const connId = conn.credentialId || conn.id || conn._id;
+                let connection = connections.find((conn: Connection) => {
+                  const connId = getConnectionId(conn);
                   return connId === initialCredentialId;
                 });
                 
                 // If not found by credentialId, find the most recent Notion connection
                 if (!connection) {
-                  const notionConnections = connections.filter((conn: any) => {
-                    const connectorId = conn.connectorId || conn.connector || conn.integrationId || '';
-                    const type = conn.type || '';
-                    return (
-                      connectorId.toLowerCase() === 'notion' ||
-                      type.toLowerCase() === 'notion-oauth2' ||
-                      type.toLowerCase().includes('notion')
-                    );
-                  });
+                  const notionConnections = filterNotionConnections(connections);
                   
                   if (notionConnections.length > 0) {
-                    // Sort by creation date (most recent first)
-                    notionConnections.sort((a: any, b: any) => {
-                      const dateA = new Date(a.createdAt || a.created_at || 0).getTime();
-                      const dateB = new Date(b.createdAt || b.created_at || 0).getTime();
-                      return dateB - dateA;
-                    });
-                    connection = notionConnections[0];
+                    const sorted = sortConnectionsByDate(notionConnections);
+                    connection = sorted[0];
                     console.log(`   Found most recent Notion connection instead`);
                   }
                 }
@@ -173,8 +167,13 @@ async function connectNotion() {
                 }
                 
                 if (connection) {
-                  const connectionId = connection.credentialId || connection.id || connection._id;
-                  const connectorId = connection.connectorId || connection.connector || 'notion';
+                  const connectionId = getConnectionId(connection);
+                  if (!connectionId) {
+                    console.log(`   ⚠️  Connection found but no connection ID available`);
+                    return;
+                  }
+                  
+                  const connectorId = getConnectorId(connection);
                   
                   // Verify the connection works before reporting success
                   try {
@@ -236,30 +235,18 @@ async function connectNotion() {
                   await new Promise(resolve => setTimeout(resolve, 3000));
                   
                   const connections2 = await oauthFlow.listConnections();
-                  let connection2 = connections2.find((conn: any) => {
-                    const connId = conn.credentialId || conn.id || conn._id;
+                  let connection2 = connections2.find((conn: Connection) => {
+                    const connId = getConnectionId(conn);
                     return connId === initialCredentialId;
                   });
                   
                   // If still not found, try finding most recent Notion connection
                   if (!connection2) {
-                    const notionConnections2 = connections2.filter((conn: any) => {
-                      const connectorId = conn.connectorId || conn.connector || conn.integrationId || '';
-                      const type = conn.type || '';
-                      return (
-                        connectorId.toLowerCase() === 'notion' ||
-                        type.toLowerCase() === 'notion-oauth2' ||
-                        type.toLowerCase().includes('notion')
-                      );
-                    });
+                    const notionConnections2 = filterNotionConnections(connections2);
                     
                     if (notionConnections2.length > 0) {
-                      notionConnections2.sort((a: any, b: any) => {
-                        const dateA = new Date(a.createdAt || a.created_at || 0).getTime();
-                        const dateB = new Date(b.createdAt || b.created_at || 0).getTime();
-                        return dateB - dateA;
-                      });
-                      connection2 = notionConnections2[0];
+                      const sorted = sortConnectionsByDate(notionConnections2);
+                      connection2 = sorted[0];
                     }
                   }
                   
@@ -282,8 +269,13 @@ async function connectNotion() {
                   }
                   
                   if (connection2) {
-                    const connectionId = connection2.credentialId || connection2.id || connection2._id;
-                    const connectorId = connection2.connectorId || connection2.connector || 'notion';
+                    const connectionId = getConnectionId(connection2);
+                    if (!connectionId) {
+                      console.log(`   ⚠️  Connection found but no connection ID available`);
+                      return;
+                    }
+                    
+                    const connectorId = getConnectorId(connection2);
                     console.log('\n✅ Connection found on second attempt!');
                     console.log(`   Connection ID (credentialId): ${connectionId}`);
                     console.log(`   Connector ID: ${connectorId}`);
@@ -384,7 +376,7 @@ async function connectNotion() {
                     <li>Check the browser's address bar - look for the full URL including any fragments</li>
                     <li>If you see <code>#code=...</code> in the URL, the page should automatically redirect</li>
                     <li>Check your terminal - we may have found the connection automatically</li>
-                    <li>Try checking your connections: <code>npm run find-notion-connection</code></li>
+                    <li>Try checking your connections: <code>npm run list-connections notion</code></li>
                     <li>If a connection was created, you can use it even without the callback code</li>
                   </ol>
                   <p><strong>Redirect URI used:</strong> <code>${redirectUri}</code></p>

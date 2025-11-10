@@ -105,7 +105,7 @@ This demo fulfills all requirements:
    - Copy your User ID
 
    **Get your Connection ID:**
-   - **Recommended:** Test all connections: `npm run test-all-connections` (finds working connections)
+   - **Recommended:** Verify connection: `npm run verify-connection` (finds and sets working connection)
    - Complete OAuth flow: `npm run connect-notion` (creates new connection)
    - Or list connections: `npm run list-connections` (lists all connections)
    - Or get from Alloy Dashboard → Connections
@@ -277,10 +277,10 @@ npm run server
 # Connect Notion via OAuth
 npm run connect-notion
 
-# Test all connections to find working ones (RECOMMENDED)
-npm run test-all-connections
+# Verify and set working connection (RECOMMENDED)
+npm run verify-connection
 
-# List your connections
+# List your connections (add "notion" to filter for Notion only)
 npm run list-connections
 
 # Show token information
@@ -303,7 +303,8 @@ alloy-connectivity-demo/
 │   ├── connect-notion.ts      # OAuth connection script
 │   ├── list-connections.ts    # List connections utility
 │   ├── show-tokens.ts         # Token information utility
-│   ├── test-all-connections.ts # Connection testing utility
+│   ├── verify-and-set-connection.ts # Connection verification and setup utility
+│   ├── connection-utils.ts # Shared connection utility functions
 │   └── connect-notion-frontend.html  # Web interface
 ├── docs/                      # Documentation
 ├── .env.example              # Environment template
@@ -342,7 +343,7 @@ alloy-connectivity-demo/
 
 **"Credential not found" or "Invalid Authorization"**
 - Verify your API key is correct and has Connectivity API permissions
-- Test your connections: `npm run test-all-connections`
+- Verify your connection: `npm run verify-connection`
 - See the [Setup Guide](SETUP.md) for detailed troubleshooting
 - Ensure you're using the correct base URL: `https://production.runalloy.com`
 

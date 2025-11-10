@@ -498,7 +498,7 @@ async function getCachedConnection(connectorId: string): Promise<string | null> 
 
 | Error | Cause | Solution |
 |-------|-------|----------|
-| "Credential not found" | Invalid connection ID | Use `npm run test-all-connections` to find working connection |
+| "Credential not found" | Invalid connection ID | Use `npm run verify-connection` to find and set working connection |
 | "Invalid Authorization" | Invalid API key | Verify API key in Alloy Dashboard |
 | "Connection not yet established" | No connection ID | Complete OAuth flow: `npm run connect-notion` |
 

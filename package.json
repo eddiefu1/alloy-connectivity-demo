@@ -12,8 +12,6 @@
     "list-connections": "node --loader ts-node/esm src/list-connections.ts",
     "connect-notion": "node --loader ts-node/esm src/connect-notion.ts",
     "show-tokens": "node --loader ts-node/esm src/show-tokens.ts",
-    "find-notion-connection": "node --loader ts-node/esm src/find-notion-connection.ts",
-    "test-all-connections": "node --loader ts-node/esm src/test-all-connections.ts",
     "verify-connection": "node --loader ts-node/esm src/verify-and-set-connection.ts",
     "test": "echo \"No tests configured yet\" && exit 0"
   },
