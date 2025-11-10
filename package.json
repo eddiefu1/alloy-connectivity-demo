@@ -19,9 +19,10 @@
     "test-api-auth": "node --loader ts-node/esm src/test-api-auth.ts",
     "test-api-auth-advanced": "node --loader ts-node/esm src/test-api-auth-advanced.ts",
     "find-notion-connection": "node --loader ts-node/esm src/find-notion-connection.ts",
-    "test-notion-connection": "node --loader ts-node/esm src/test-notion-connection.ts",
-    "test-all-connections": "node --loader ts-node/esm src/test-all-connections.ts",
-    "test": "echo \"No tests configured yet\" && exit 0"
+        "test-notion-connection": "node --loader ts-node/esm src/test-notion-connection.ts",
+        "test-all-connections": "node --loader ts-node/esm src/test-all-connections.ts",
+        "verify-connection": "node --loader ts-node/esm src/verify-and-set-connection.ts",
+        "test": "echo \"No tests configured yet\" && exit 0"
   },
   "keywords": [
     "alloy",

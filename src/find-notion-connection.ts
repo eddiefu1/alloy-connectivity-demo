@@ -19,42 +19,74 @@ async function findNotionConnection() {
     
     console.log(`\n✅ Found ${connections.length} connection(s)\n`);
     
-    // Filter for Notion connections
-    const notionConnections = connections.filter((conn: any) => 
-      conn.connectorId === 'notion' || 
-      conn.connector?.toLowerCase() === 'notion' ||
-      conn.type?.toLowerCase().includes('notion') ||
-      JSON.stringify(conn).toLowerCase().includes('notion')
-    );
+    // Filter for Notion connections - check multiple possible fields
+    const notionConnections = connections.filter((conn: any) => {
+      // Check various fields that might indicate a Notion connection
+      const connectorId = conn.connectorId || conn.connector || conn.integrationId || '';
+      const type = conn.type || '';
+      const name = (conn.name || '').toLowerCase();
+      
+      return (
+        connectorId.toLowerCase() === 'notion' ||
+        type.toLowerCase() === 'notion-oauth2' ||
+        type.toLowerCase().includes('notion') ||
+        name.includes('notion')
+      );
+    });
     
     if (notionConnections.length > 0) {
       console.log(`✅ Found ${notionConnections.length} Notion connection(s):\n`);
+      
       notionConnections.forEach((conn: any, index: number) => {
+        // Extract connection ID - prioritize credentialId, then id
+        const connectionId = conn.credentialId || conn.id || conn._id || 'N/A';
+        const connectorId = conn.connectorId || conn.connector || conn.integrationId || 'N/A';
+        
         console.log(`Notion Connection ${index + 1}:`);
-        console.log(`  ID: ${conn.id || conn._id || 'N/A'}`);
-        console.log(`  Connector: ${conn.connectorId || conn.connector || 'N/A'}`);
+        console.log(`  Connection ID (credentialId): ${connectionId}`);
+        console.log(`  Connector ID: ${connectorId}`);
         console.log(`  Type: ${conn.type || 'N/A'}`);
+        console.log(`  Name: ${conn.name || 'N/A'}`);
         console.log(`  Created: ${conn.createdAt || conn.created_at || 'N/A'}`);
         console.log(`  Status: ${conn.status || 'N/A'}`);
-        console.log(`  Full object:`, JSON.stringify(conn, null, 2));
         console.log('');
       });
       
-      // Use the first Notion connection (most recent)
-      const firstNotion = notionConnections[0];
-      const connectionId = firstNotion.credentialId || firstNotion.id || firstNotion._id;
+      // Sort by creation date (most recent first)
+      const sortedConnections = notionConnections.sort((a: any, b: any) => {
+        const dateA = new Date(a.createdAt || a.created_at || 0).getTime();
+        const dateB = new Date(b.createdAt || b.created_at || 0).getTime();
+        return dateB - dateA;
+      });
+      
+      // Use the most recent Notion connection
+      const recommended = sortedConnections[0];
+      const connectionId = recommended.credentialId || recommended.id || recommended._id;
+      
       console.log(`\n💡 Recommended Connection ID: ${connectionId}`);
-      console.log(`   Name: ${firstNotion.name || 'N/A'}`);
-      console.log(`   Created: ${firstNotion.createdAt || 'N/A'}`);
-      console.log(`\nAdd this to your .env file:`);
-      console.log(`   CONNECTION_ID=${connectionId}\n`);
+      console.log(`   Connector: ${recommended.connectorId || recommended.connector || 'notion'}`);
+      console.log(`   Name: ${recommended.name || 'N/A'}`);
+      console.log(`   Type: ${recommended.type || 'N/A'}`);
+      console.log(`   Created: ${recommended.createdAt || recommended.created_at || 'N/A'}`);
+      console.log(`\n📝 Add this to your .env file:`);
+      console.log(`   CONNECTION_ID=${connectionId}`);
+      console.log(`\n✅ This connection ID is ready to use with the Connectivity API\n`);
     } else {
       console.log('❌ No Notion connections found');
-      console.log('\n📋 All connections:');
-      connections.forEach((conn: any, index: number) => {
-        console.log(`\nConnection ${index + 1}:`);
-        console.log(JSON.stringify(conn, null, 2));
-      });
+      console.log('\n📋 All available connections:');
+      if (connections.length > 0) {
+        connections.forEach((conn: any, index: number) => {
+          const connectionId = conn.credentialId || conn.id || conn._id || 'N/A';
+          const connectorId = conn.connectorId || conn.connector || conn.integrationId || 'N/A';
+          console.log(`\nConnection ${index + 1}:`);
+          console.log(`  ID: ${connectionId}`);
+          console.log(`  Connector: ${connectorId}`);
+          console.log(`  Type: ${conn.type || 'N/A'}`);
+          console.log(`  Name: ${conn.name || 'N/A'}`);
+        });
+      } else {
+        console.log('   No connections found in your account');
+      }
       console.log('\n💡 To create a Notion connection, run:');
       console.log('   npm run connect-notion\n');
     }

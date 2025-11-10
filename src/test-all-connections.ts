@@ -27,12 +27,19 @@ async function testAllConnections() {
 
     console.log(`✅ Found ${connections.length} connection(s)\n`);
 
-    // Step 2: Filter for Notion connections
-    const notionConnections = connections.filter((conn: any) => 
-      conn.type === 'notion-oauth2' || 
-      conn.connectorId === 'notion' ||
-      JSON.stringify(conn).toLowerCase().includes('notion')
-    );
+    // Step 2: Filter for Notion connections - check multiple possible fields
+    const notionConnections = connections.filter((conn: any) => {
+      const connectorId = conn.connectorId || conn.connector || conn.integrationId || '';
+      const type = conn.type || '';
+      const name = (conn.name || '').toLowerCase();
+      
+      return (
+        connectorId.toLowerCase() === 'notion' ||
+        type.toLowerCase() === 'notion-oauth2' ||
+        type.toLowerCase().includes('notion') ||
+        name.includes('notion')
+      );
+    });
 
     if (notionConnections.length === 0) {
       console.log('❌ No Notion connections found');
@@ -69,13 +76,16 @@ async function testAllConnections() {
 
     for (let i = 0; i < notionConnections.length; i++) {
       const conn = notionConnections[i];
+      // Prioritize credentialId as that's what's used in API calls
       const connectionId = conn.credentialId || conn.id || conn._id;
+      const connectorId = conn.connectorId || conn.connector || conn.integrationId || 'notion';
       const connectionName = conn.name || `Connection ${i + 1}`;
 
       console.log(`\n[${i + 1}/${notionConnections.length}] Testing: ${connectionName}`);
-      console.log(`   Connection ID: ${connectionId}`);
+      console.log(`   Connection ID (credentialId): ${connectionId}`);
+      console.log(`   Connector ID: ${connectorId}`);
       console.log(`   Type: ${conn.type || 'N/A'}`);
-      console.log(`   Created: ${conn.createdAt || 'N/A'}`);
+      console.log(`   Created: ${conn.createdAt || conn.created_at || 'N/A'}`);
 
       try {
         // Test the connection with a real API call

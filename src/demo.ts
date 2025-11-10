@@ -55,22 +55,29 @@ async function runDemo() {
       try {
         const oauthFlow = new AlloyOAuthFlow();
         const connections = await oauthFlow.listConnections();
-        const connection = connections.find((conn: any) => 
-          (conn.credentialId || conn.id || conn._id) === connectionId
-        );
+        const connection = connections.find((conn: any) => {
+          const connId = conn.credentialId || conn.id || conn._id;
+          return connId === connectionId;
+        });
         
         if (connection) {
+          const connectorId = connection.connectorId || connection.connector || connection.integrationId || 'notion';
           console.log(`✓ Connection details found:`);
+          console.log(`   Connection ID (credentialId): ${connectionId}`);
+          console.log(`   Connector ID: ${connectorId}`);
           console.log(`   Name: ${connection.name || 'N/A'}`);
           console.log(`   Type: ${connection.type || 'N/A'}`);
           console.log(`   Created: ${connection.createdAt || connection.created_at || 'N/A'}`);
         } else {
           console.log(`   Note: Connection not found in list, but API calls work`);
-          console.log(`   This connection may be from a different authentication source`);
+          console.log(`   Using connection ID: ${connectionId}`);
+          console.log(`   Connector: notion (default)`);
         }
       } catch (listError: any) {
         // Ignore list errors if direct API works
         console.log(`   Note: Could not fetch connection details from list`);
+        console.log(`   Using connection ID: ${connectionId}`);
+        console.log(`   Connector: notion (default)`);
       }
     } catch (error: any) {
       console.log(`❌ Connection test failed: ${error.message}`);
