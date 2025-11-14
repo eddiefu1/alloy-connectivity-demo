@@ -9,6 +9,11 @@ yarn-error.log*
 .env.local
 .env.*.local
 
+# MCP configuration files (may contain sensitive URLs/keys)
+# Keep .mcp.json template but ignore local configs
+.cursor/mcp.json
+*_mcp_settings.json
+
 # Build output
 dist/
 build/
@@ -19,6 +24,7 @@ build/
 # IDE
 .vscode/
 .idea/
+.cursor/
 *.swp
 *.swo
 *~

@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "alloy": {
+      "url": "https://mcp-api.runalloy.com/mcp/YOUR_SERVER_ID/YOUR_TOKEN"
+    }
+  }
+}
+

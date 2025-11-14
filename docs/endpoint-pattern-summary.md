@@ -57,7 +57,7 @@ Headers:
 
 Body:
 {
-  "credentialId": "6911017b4d2bcbfd4ce727fe",
+  "credentialId": "your_credential_id_here",
   "requestBody": {
     "filter": {
       "value": "page",
