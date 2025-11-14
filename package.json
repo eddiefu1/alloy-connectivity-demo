@@ -21,6 +21,8 @@
     "write-update": "node --loader ts-node/esm src/quick-write-update.ts",
     "hello-world": "node --loader ts-node/esm src/hello-world.ts",
     "easy-example": "node --loader ts-node/esm src/easy-example.ts",
+    "api-examples": "node --loader ts-node/esm src/api-connection-examples.ts",
+    "write-examples": "node --loader ts-node/esm src/write-examples.ts",
     "test": "echo \"No tests configured yet\" && exit 0"
   },
   "keywords": [

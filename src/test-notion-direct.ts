@@ -14,7 +14,8 @@ async function testNotionDirect() {
     if (!config.notionInternalToken) {
       console.error('❌ NOTION_INTERNAL_TOKEN is not set in .env file');
       console.log('\n💡 Add this to your .env file:');
-      console.log('   NOTION_INTERNAL_TOKEN=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');
+      console.log('   NOTION_INTERNAL_TOKEN=your_notion_token_here');
+      console.log('   (Get your token from: https://www.notion.so/my-integrations)');
       process.exit(1);
     }
 
