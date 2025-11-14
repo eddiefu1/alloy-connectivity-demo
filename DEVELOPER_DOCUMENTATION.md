@@ -7,11 +7,12 @@ Complete guide for integrating with Alloy's Connectivity API to connect and sync
 1. [Overview](#overview)
 2. [Prerequisites](#prerequisites)
 3. [Quick Start](#quick-start)
-4. [Authentication](#authentication)
-5. [API Usage](#api-usage)
-6. [Code Examples](#code-examples)
-7. [Error Handling](#error-handling)
-8. [API Reference](#api-reference)
+4. [How to Run Examples](#how-to-run-examples)
+5. [Authentication](#authentication)
+6. [API Usage](#api-usage)
+7. [Code Examples](#code-examples)
+8. [Error Handling](#error-handling)
+9. [API Reference](#api-reference)
 
 ## Overview
 
@@ -98,6 +99,111 @@ export function getConfig() {
   };
 }
 ```
+
+## How to Run Examples
+
+### Setup Project Structure
+
+Create the following files in your project:
+
+```
+your-project/
+├── .env                 # Environment variables
+├── config.ts            # Configuration file
+├── oauth-flow.ts        # OAuth flow handler
+├── notion-client.ts     # Notion API client
+├── connect-notion.ts    # OAuth connection script
+└── example.ts           # Example usage script
+```
+
+### Step 1: Create OAuth Flow File
+
+Save the `AlloyOAuthFlow` class code from the [Authentication](#authentication) section into `oauth-flow.ts`.
+
+### Step 2: Create Notion Client File
+
+Save the `NotionClient` class code from the [API Usage](#api-usage) section into `notion-client.ts`.
+
+### Step 3: Run OAuth Connection
+
+Create `connect-notion.ts` with the complete OAuth example from the [Authentication](#authentication) section, then run:
+
+```bash
+# Using Node.js directly (if using TypeScript with ts-node)
+npx ts-node connect-notion.ts
+
+# Or compile first, then run
+tsc connect-notion.ts
+node connect-notion.js
+```
+
+This will:
+1. Start a local server on port 3000
+2. Print an OAuth URL to open in your browser
+3. After authorization, display your Connection ID
+4. Add the Connection ID to your `.env` file
+
+### Step 4: Run API Examples
+
+Create `example.ts` with the example code from the [Code Examples](#code-examples) section, then run:
+
+```bash
+# Using Node.js directly
+npx ts-node example.ts
+
+# Or compile first
+tsc example.ts
+node example.js
+```
+
+### Using npm Scripts (Recommended)
+
+Add these scripts to your `package.json`:
+
+```json
+{
+  "scripts": {
+    "connect": "ts-node connect-notion.ts",
+    "example": "ts-node example.ts",
+    "build": "tsc"
+  }
+}
+```
+
+Then run:
+```bash
+npm run connect    # Run OAuth flow
+npm run example     # Run API examples
+```
+
+### Quick Test Commands
+
+```bash
+# 1. Connect Notion via OAuth
+npm run connect
+
+# 2. After getting Connection ID, add it to .env file
+# CONNECTION_ID=your_connection_id_here
+
+# 3. Run example script
+npm run example
+```
+
+### Troubleshooting
+
+**"Cannot find module" errors:**
+- Make sure all files are in the same directory
+- Use `.js` extension in imports: `import { getConfig } from './config.js'`
+- Run `npm install axios dotenv` if not already installed
+
+**"Connection ID not set" errors:**
+- Complete OAuth flow first: `npm run connect`
+- Add `CONNECTION_ID` to your `.env` file
+- Restart your terminal/application after updating `.env`
+
+**Port 3000 already in use:**
+- Change the port in `connect-notion.ts` (e.g., `server.listen(3001)`)
+- Update redirect URI in `.env` to match: `OAUTH_REDIRECT_URI=http://localhost:3001/oauth/callback`
 
 ## Authentication
 
