@@ -184,50 +184,52 @@
             try {
                 connectBtn.disabled = true;
                 connectBtn.textContent = 'Connecting...';
-                resultDiv.innerHTML = '<div class="info">🔄 Initiating OAuth flow... <span class="loading"></span></div>';
+                resultDiv.innerHTML = '<div class="info">🔄 Connecting to Notion... <span class="loading"></span></div>';
 
-                const response = await fetch('/api/oauth/initiate', {
+                // Notion connector only supports OAuth 2.0 authentication
+                // Skip API key authentication and go straight to OAuth
+                console.log('Initiating OAuth 2.0 flow for Notion...');
+                
+                let response = await fetch('/api/oauth/initiate', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        connectorId: 'notion',
-                        redirectUri: window.location.origin + '/oauth/callback'
+                        connectorId: 'notion'
                     })
                 });
 
-                const data = await response.json();
+                let data = await response.json();
 
                 if (!response.ok || !data.success) {
-                    // Display detailed error message
+                    console.error('OAuth initiation failed:', data);
                     let errorMsg = data.error || 'Failed to initiate OAuth flow';
-                    if (data.message) {
-                        errorMsg += '<br><br>' + data.message;
-                    }
-                    if (data.suggestion) {
-                        errorMsg += '<br><br><strong>💡 Suggestion:</strong><br>' + data.suggestion.replace(/\n/g, '<br>');
-                    }
+                    let errorDetails = '<div class="error">';
+                    errorDetails += `<strong>❌ OAuth Initiation Failed</strong><br><br>`;
+                    errorDetails += `<p>${errorMsg}</p>`;
+                    
                     if (data.details) {
-                        errorMsg += '<br><br><strong>Details:</strong><br><pre style="background: #f4f4f4; padding: 10px; border-radius: 4px; overflow: auto; max-height: 200px;">' + JSON.stringify(data.details, null, 2) + '</pre>';
+                        errorDetails += `<br><strong>Details:</strong><br><pre style="background: #f4f4f4; padding: 10px; border-radius: 4px; overflow: auto; max-height: 200px; font-size: 12px;">${JSON.stringify(data.details, null, 2)}</pre>`;
                     }
-                    resultDiv.innerHTML = `<div class="error">❌ ${errorMsg}<br><br>Check the browser console (F12) for more details.</div>`;
+                    
+                    if (data.solution) {
+                        errorDetails += `<br><p><strong>💡 Solution:</strong></p>`;
+                        errorDetails += `<p>${data.solution.note || ''}</p>`;
+                    }
+                    
+                    errorDetails += `</div>`;
+                    resultDiv.innerHTML = errorDetails;
                     connectBtn.disabled = false;
                     connectBtn.textContent = 'Connect Notion';
-                    console.error('Error response:', data);
                     return;
                 }
 
-                if (data.success && data.oauthUrl) {
-                    resultDiv.innerHTML = '<div class="info">🔄 Redirecting to Notion authorization... <span class="loading"></span></div>';
-                    
-                    // Log OAuth URL for debugging
-                    console.log('OAuth URL:', data.oauthUrl);
-                    console.log('Expected callback:', data.redirectUri);
-                    if (data.debug) {
-                        console.log('Debug info:', data.debug);
-                    }
-                    
-                    // Redirect to OAuth URL
+                // OAuth URL received - redirect user to authorize
+                if (data.oauthUrl) {
+                    resultDiv.innerHTML = '<div class="info">🔄 Redirecting to Notion authorization page...</div>';
+                    console.log('Redirecting to OAuth URL:', data.oauthUrl);
                     window.location.href = data.oauthUrl;
+                } else {
+                    throw new Error('No OAuth URL received from server');
                 }
             } catch (error) {
                 let errorMsg = error.message || 'An unexpected error occurred';

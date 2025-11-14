@@ -55,6 +55,15 @@ npm install
    ALLOY_API_KEY=your_api_key_here
    ALLOY_USER_ID=your_user_id_here
    CONNECTION_ID=your_connection_id_here
+   
+   # Optional: Custom OAuth Redirect URI
+   # If not set, defaults to http://localhost:3000/oauth/callback
+   # Make sure this matches what's registered in your Alloy account
+   OAUTH_REDIRECT_URI=http://localhost:3000/oauth/callback
+   
+   # Optional: Notion Internal Integration Token
+   # For direct Notion API access (bypassing Alloy OAuth)
+   NOTION_INTERNAL_TOKEN=your_notion_internal_token_here
    ```
 
 ## Step 4: Run the Demo

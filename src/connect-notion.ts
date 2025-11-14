@@ -25,7 +25,18 @@ async function connectNotion() {
 
     const connectorId = 'notion';
     const port = 3000;
-    const redirectUri = `http://localhost:${port}/oauth/callback`;
+    
+    // NOTE: Notion connector only supports OAuth 2.0 authentication
+    // The internal token cannot be used with Alloy API - it's for direct Notion API access
+    if (config.notionInternalToken) {
+      console.log('⚠️  Notion Internal Token Detected');
+      console.log('   Note: Notion connector only supports OAuth 2.0 authentication.');
+      console.log('   Your internal token can be used directly with Notion API, but for Alloy connectivity, OAuth is required.\n');
+      console.log('   Proceeding with OAuth 2.0 flow...\n');
+    }
+    
+    // Use custom redirect URI from config if available, otherwise use localhost for development
+    const redirectUri = config.oauthRedirectUri || `http://localhost:${port}/oauth/callback`;
 
     // Step 1: Initiate OAuth flow
     console.log('Initiating OAuth flow...');

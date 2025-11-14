@@ -51,6 +51,15 @@ This demo fulfills all requirements:
 - ✅ **Data Sync**: Full read and write operations to demonstrate data synchronization
 - ✅ **GitHub Ready**: Complete setup instructions and documentation
 
+## 🔐 OAuth Connection Guide
+
+**Quick Start**: See [OAUTH_GUIDE.md](./OAUTH_GUIDE.md) for detailed OAuth connection instructions.
+
+**Quick Methods**:
+1. **Web Interface** (Easiest): Start server → Visit `http://localhost:3000` → Click "Connect Notion"
+2. **Command Line**: Run `npm run connect-notion` → Follow instructions
+3. **API**: POST to `/api/oauth/initiate` → Open returned URL → Authorize
+
 ## 🚀 Quick Start
 
 ### Prerequisites
@@ -97,6 +106,15 @@ This demo fulfills all requirements:
    
    # Connection ID (obtained after OAuth flow)
    CONNECTION_ID=your_connection_id_here
+   
+   # Optional: Custom OAuth Redirect URI
+   # If not set, defaults to http://localhost:3000/oauth/callback
+   # Make sure this matches what's registered in your Alloy account
+   OAUTH_REDIRECT_URI=http://localhost:3000/oauth/callback
+   
+   # Optional: Notion Internal Integration Token
+   # For direct Notion API access (bypassing Alloy OAuth)
+   NOTION_INTERNAL_TOKEN=your_notion_internal_token_here
    ```
 
    **Get your User ID:**
@@ -254,6 +272,8 @@ const newPage = await notionClient.createPage({
 | `CONNECTION_ID` | Yes* | Connection ID after OAuth flow (obtained after connecting Notion) |
 | `ALLOY_BASE_URL` | No | API base URL (default: `https://production.runalloy.com`) |
 | `ALLOY_ENVIRONMENT` | No | Environment: `development` or `production` (default: `production`) |
+| `OAUTH_REDIRECT_URI` | No | Custom OAuth redirect URI (default: `http://localhost:3000/oauth/callback`) |
+| `NOTION_INTERNAL_TOKEN` | No | Notion internal integration token (for direct Notion API access) |
 
 \* Required for data operations. Get it after completing the OAuth flow.
 

@@ -8,6 +8,8 @@ export interface Config {
   alloyUserId: string;
   alloyBaseUrl: string;
   environment: 'development' | 'production';
+  oauthRedirectUri?: string;
+  notionInternalToken?: string;
 }
 
 /**
@@ -19,6 +21,8 @@ export interface Config {
  * - ALLOY_USER_ID: Your Alloy user ID (required)
  * - ALLOY_ENVIRONMENT: 'development' or 'production' (optional, defaults to production)
  * - ALLOY_BASE_URL: Custom base URL (optional, auto-detected based on environment)
+ * - OAUTH_REDIRECT_URI: Custom OAuth redirect URI (optional, defaults to http://localhost:3000/oauth/callback for development)
+ * - NOTION_INTERNAL_TOKEN: Notion internal integration token (optional, for direct Notion API access)
  */
 export function getConfig(): Config {
   const apiKey = process.env.ALLOY_API_KEY;
@@ -43,10 +47,18 @@ export function getConfig(): Config {
     throw new Error('ALLOY_USER_ID environment variable is required');
   }
 
+  // Get OAuth redirect URI from environment (optional)
+  const oauthRedirectUri = process.env.OAUTH_REDIRECT_URI;
+
+  // Get Notion internal token from environment (optional)
+  const notionInternalToken = process.env.NOTION_INTERNAL_TOKEN;
+
   return {
     alloyApiKey: apiKey,
     alloyUserId: userId,
     alloyBaseUrl: baseUrl,
     environment: environment,
+    oauthRedirectUri: oauthRedirectUri,
+    notionInternalToken: notionInternalToken,
   };
 }

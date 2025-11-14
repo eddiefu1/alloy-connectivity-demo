@@ -11,8 +11,16 @@
     "server": "node --loader ts-node/esm src/server.ts",
     "list-connections": "node --loader ts-node/esm src/list-connections.ts",
     "connect-notion": "node --loader ts-node/esm src/connect-notion.ts",
+    "test-connection": "node --loader ts-node/esm src/test-connection.ts",
+    "find-credential": "node --loader ts-node/esm src/find-credential-id.ts",
+    "verify-setup": "node --loader ts-node/esm src/verify-setup.ts",
+    "test-notion-direct": "node --loader ts-node/esm src/test-notion-direct.ts",
     "show-tokens": "node --loader ts-node/esm src/show-tokens.ts",
     "verify-connection": "node --loader ts-node/esm src/verify-and-set-connection.ts",
+    "notion-example": "node --loader ts-node/esm src/notion-read-write-update.ts",
+    "write-update": "node --loader ts-node/esm src/quick-write-update.ts",
+    "hello-world": "node --loader ts-node/esm src/hello-world.ts",
+    "easy-example": "node --loader ts-node/esm src/easy-example.ts",
     "test": "echo \"No tests configured yet\" && exit 0"
   },
   "keywords": [
