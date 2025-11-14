@@ -128,7 +128,7 @@ This demo fulfills all requirements:
    - Or list connections: `npm run list-connections` (lists all connections)
    - Or get from Alloy Dashboard → Connections
    
-   For detailed setup instructions, see [SETUP.md](SETUP.md).
+   For detailed setup instructions, see [DEVELOPER_GUIDE_WITH_MCP.md](DEVELOPER_GUIDE_WITH_MCP.md).
 
 ## 📖 Usage
 
@@ -412,7 +412,7 @@ alloy-connectivity-demo/
 
 ## 📚 Documentation
 
-- [Setup Guide](SETUP.md) - Setup instructions and troubleshooting
+- [Complete Developer Guide](DEVELOPER_GUIDE_WITH_MCP.md) - Complete setup, API reference, and MCP usage guide
 - [Developer Guide](docs/developer-guide.md) - Development overview including MCP setup
 - [Examples](EXAMPLES.md) - Complete code examples and usage patterns
 - [Endpoint Pattern Summary](docs/endpoint-pattern-summary.md) - API endpoint patterns
@@ -442,7 +442,7 @@ alloy-connectivity-demo/
 **"Credential not found" or "Invalid Authorization"**
 - Verify your API key is correct and has Connectivity API permissions
 - Verify your connection: `npm run verify-connection`
-- See the [Setup Guide](SETUP.md) for detailed troubleshooting
+- See the [Complete Developer Guide](DEVELOPER_GUIDE_WITH_MCP.md) for detailed troubleshooting
 - Ensure you're using the correct base URL: `https://production.runalloy.com`
 
 **"Connection not found in list, but API calls work"**
