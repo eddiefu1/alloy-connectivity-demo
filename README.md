@@ -238,9 +238,15 @@ STEP 5: Update Data - Update Existing Page
 
 See [Developer Guide](docs/developer-guide.md) for architecture details.
 
-## 🔧 API Reference
+## 🔧 API Reference & Examples
 
-For complete API examples and code patterns, see [EXAMPLES.md](EXAMPLES.md).
+For complete API examples and all available scripts, see [EXAMPLES.md](EXAMPLES.md).
+
+**Quick Examples:**
+- `npm run dev` - Complete demo (read + write + update)
+- `npm run create-page "Title"` - Create a single page
+- `npm run easy-example` - Learn helper functions
+- `npm run notion-example` - Comprehensive example
 
 ### Quick Example
 
