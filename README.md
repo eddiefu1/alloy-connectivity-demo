@@ -285,87 +285,34 @@ This project includes MCP server configuration for use with AI assistants like C
 
 ### Setting Up MCP in Cursor IDE
 
-**Option 1: Automated Setup Script (Easiest)**
+1. **Get your MCP server URL** from the Alloy dashboard (Settings → MCP Servers)
 
-Run the setup script for your platform:
-
-```bash
-# Windows (PowerShell)
-.\setup-mcp-cursor.ps1
-
-# Mac/Linux
-chmod +x setup-mcp-cursor.sh
-./setup-mcp-cursor.sh
-```
-
-The script will:
-- Read your `.env` file for `ALLOY_API_KEY` and `ALLOY_USER_ID`
-- Create or update Cursor's MCP configuration
-- Set up the Alloy MCP server automatically
-
-**Option 2: Using Cursor Settings (Manual)**
-
-1. **Open Cursor Settings:**
+2. **Open Cursor Settings:**
    - Press `Ctrl+,` (Windows/Linux) or `Cmd+,` (Mac) to open Settings
-   - Or go to `File` → `Preferences` → `Settings`
-
-2. **Navigate to MCP Configuration:**
-   - Search for "MCP" in settings
-   - Or go to `Settings` → `Tools & Integrations` → `MCP Servers`
+   - Navigate to MCP Servers settings
 
 3. **Add the Alloy MCP Server:**
-   - Click "Add MCP Server" or "Edit Config"
-   - Copy the contents from `.mcp.json` in this project
-   - **Important:** Replace `${ALLOY_API_KEY}` and `${ALLOY_USER_ID}` with actual values from your `.env` file
+   - Copy the configuration from `.mcp.json` in this project
+   - Replace `YOUR_SERVER_ID/YOUR_TOKEN` with your actual MCP server URL
+   - The URL format is: `https://mcp-api.runalloy.com/mcp/YOUR_SERVER_ID/YOUR_TOKEN`
 
-4. **Alternative: Direct Config File Edit:**
-   - On Windows: Edit `%APPDATA%\Cursor\User\globalStorage\saoudrizwan.claude-dev\settings\cline_mcp_settings.json`
-   - On Mac: Edit `~/Library/Application Support/Cursor/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json`
-   - On Linux: Edit `~/.config/Cursor/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json`
+4. **Restart Cursor** to load the new MCP configuration
 
-**Option 3: Using Project-Level Config**
-
-1. **Copy `.mcp.json` to Cursor's config:**
-   ```bash
-   # Windows (PowerShell)
-   Copy-Item .mcp.json "$env:APPDATA\Cursor\User\globalStorage\saoudrizwan.claude-dev\settings\cline_mcp_settings.json"
-   
-   # Mac/Linux
-   cp .mcp.json ~/Library/Application Support/Cursor/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json
-   ```
-
-2. **Update environment variables:**
-   - Edit the copied file and replace `${ALLOY_API_KEY}` and `${ALLOY_USER_ID}` with actual values
-   - Or ensure these are set as system environment variables
-
-**Option 4: Using Workspace Settings**
-
-1. **Create `.cursor/mcp.json` in your project root:**
-   ```bash
-   mkdir .cursor
-   cp .mcp.json .cursor/mcp.json
-   ```
-
-2. **Update the file with actual values:**
-   ```json
-   {
-     "mcpServers": {
-       "alloy": {
-         "command": "npx",
-         "args": ["-y", "@runalloy/mcp-server-alloy"],
-         "env": {
-           "ALLOY_API_KEY": "your_actual_api_key_here",
-           "ALLOY_USER_ID": "your_actual_user_id_here"
-         }
-       }
-     }
-   }
-   ```
+**Example configuration:**
+```json
+{
+  "mcpServers": {
+    "alloy": {
+      "url": "https://mcp-api.runalloy.com/mcp/YOUR_SERVER_ID/YOUR_TOKEN"
+    }
+  }
+}
+```
 
 **Important Notes:**
-- ⚠️ **Security**: Never commit `.cursor/mcp.json` with real API keys to git (add to `.gitignore`)
 - 🔄 **Restart Required**: Restart Cursor after configuring MCP
 - ✅ **Verify**: Check that MCP servers are active in Cursor's MCP settings panel
+- 📖 **Full Instructions**: See [Developer Guide](docs/developer-guide.md#mcp-model-context-protocol-setup) for detailed setup
 
 ### Setting Up MCP in Claude Desktop
 
@@ -400,7 +347,7 @@ When using the Alloy MCP server, you'll have access to functions like:
 - `mcp_alloy_get_action_details_alloy` - Get action parameters and requirements
 - And more...
 
-**📖 See [MCP Usage Guide](docs/mcp-usage-guide.md) for complete instructions on using MCP commands in Cursor.**
+**📖 See [Developer Guide](docs/developer-guide.md#mcp-model-context-protocol-setup) for MCP setup and usage instructions.**
 
 ## 🔌 Supported Integrations
 
@@ -452,9 +399,7 @@ alloy-connectivity-demo/
 │   └── connect-notion-frontend.html  # Web interface
 ├── docs/                      # Documentation
 ├── .env.example              # Environment template
-├── .mcp.json                 # MCP server configuration
-├── setup-mcp-cursor.ps1      # Windows PowerShell script to set up MCP in Cursor
-├── setup-mcp-cursor.sh       # Mac/Linux script to set up MCP in Cursor
+├── .mcp.json                 # MCP server configuration template
 ├── package.json              # Dependencies
 └── README.md                 # This file
 ```
@@ -462,9 +407,8 @@ alloy-connectivity-demo/
 ## 📚 Documentation
 
 - [Setup Guide](SETUP.md) - Setup instructions and troubleshooting
-- **[MCP Usage Guide](docs/mcp-usage-guide.md)** - **How to use MCP commands in Cursor** ⭐
+- [Developer Guide](docs/developer-guide.md) - Development overview including MCP setup
 - [Examples](EXAMPLES.md) - Complete code examples and usage patterns
-- [Developer Guide](docs/developer-guide.md) - Development overview
 - [Endpoint Pattern Summary](docs/endpoint-pattern-summary.md) - API endpoint patterns
 
 ## 🐛 Troubleshooting

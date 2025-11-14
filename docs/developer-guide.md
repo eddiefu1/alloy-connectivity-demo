@@ -78,6 +78,60 @@ See [Endpoint Pattern Summary](endpoint-pattern-summary.md) for details.
 
 See [SETUP.md](../SETUP.md) for troubleshooting common issues.
 
+## MCP (Model Context Protocol) Setup
+
+MCP allows you to use Alloy's Connectivity API directly through Cursor's AI assistant using natural language commands.
+
+### Setting Up MCP in Cursor
+
+1. **Get your MCP server URL** from the Alloy dashboard (Settings → MCP Servers)
+
+2. **Open Cursor Settings** (`Ctrl+,` or `Cmd+,`)
+
+3. **Navigate to MCP Servers** settings
+
+4. **Add the Alloy server configuration:**
+   - Copy the configuration from `.mcp.json` in this project
+   - Replace `YOUR_SERVER_ID/YOUR_TOKEN` with your actual MCP server URL
+   - The URL format is: `https://mcp-api.runalloy.com/mcp/YOUR_SERVER_ID/YOUR_TOKEN`
+
+5. **Restart Cursor** to load the new MCP configuration
+
+**Example configuration:**
+```json
+{
+  "mcpServers": {
+    "alloy": {
+      "url": "https://mcp-api.runalloy.com/mcp/YOUR_SERVER_ID/YOUR_TOKEN"
+    }
+  }
+}
+```
+
+### Using MCP Commands
+
+Once configured, you can use natural language commands in Cursor:
+
+- **List connectors:** "List all available connectors in Alloy"
+- **Check credentials:** "Get my Notion credentials"
+- **Explore actions:** "What actions can I perform with Notion?"
+- **Create content:** "Create a Notion page titled 'My New Page'"
+- **Search data:** "Search for pages in my Notion workspace"
+- **Update content:** "Update the Notion page [id] to have title 'Updated Title'"
+
+### Important Notes
+
+- Some actions may be restricted by an allowlist on your MCP server
+- If you get "Access denied" errors, use the REST API directly instead
+- MCP commands work best when you describe what you want in plain English
+- The MCP server automatically uses your configured credentials
+
+### Troubleshooting MCP
+
+- **MCP server not found:** Restart Cursor and verify configuration
+- **Access denied:** Action may be restricted - use REST API as fallback
+- **Credential not found:** Verify your connections with `npm run list-connections`
+
 ## Additional Resources
 
 - [Alloy Documentation](https://docs.runalloy.com)
