@@ -7,8 +7,8 @@ Complete guide for integrating with Alloy's Connectivity API to connect and sync
 1. [Overview](#overview)
 2. [Prerequisites](#prerequisites)
 3. [Quick Start](#quick-start)
-4. [How to Run Examples](#how-to-run-examples)
-5. [Authentication](#authentication)
+4. [API Key Setup](#api-key-setup)
+5. [OAuth Connection](#oauth-connection)
 6. [API Usage](#api-usage)
 7. [Code Examples](#code-examples)
 8. [Error Handling](#error-handling)
@@ -100,112 +100,30 @@ export function getConfig() {
 }
 ```
 
-## How to Run Examples
+## API Key Setup
 
-### Setup Project Structure
+### Getting Your API Key
 
-Create the following files in your project:
+1. Go to [Alloy Dashboard](https://app.runalloy.com)
+2. Navigate to **Settings** → **API Keys**
+3. Click **Create API Key**
+4. Copy and securely store your API key
+5. Copy your User ID from the same section
 
-```
-your-project/
-├── .env                 # Environment variables
-├── config.ts            # Configuration file
-├── oauth-flow.ts        # OAuth flow handler
-├── notion-client.ts     # Notion API client
-├── connect-notion.ts    # OAuth connection script
-└── example.ts           # Example usage script
-```
+### Production vs Development
 
-### Step 1: Create OAuth Flow File
+- Both use the same endpoint: `https://production.runalloy.com`
+- Use the API key that matches your Alloy account type
+- If you get "Unauthorized" errors, try switching between production/development keys
+- Get a fresh API key from the dashboard if both fail
 
-Save the `AlloyOAuthFlow` class code from the [Authentication](#authentication) section into `oauth-flow.ts`.
-
-### Step 2: Create Notion Client File
-
-Save the `NotionClient` class code from the [API Usage](#api-usage) section into `notion-client.ts`.
-
-### Step 3: Run OAuth Connection
-
-Create `connect-notion.ts` with the complete OAuth example from the [Authentication](#authentication) section, then run:
+### Verifying Your API Key
 
 ```bash
-# Using Node.js directly (if using TypeScript with ts-node)
-npx ts-node connect-notion.ts
-
-# Or compile first, then run
-tsc connect-notion.ts
-node connect-notion.js
+npm run verify-setup
 ```
 
-This will:
-1. Start a local server on port 3000
-2. Print an OAuth URL to open in your browser
-3. After authorization, display your Connection ID
-4. Add the Connection ID to your `.env` file
-
-### Step 4: Run API Examples
-
-Create `example.ts` with the example code from the [Code Examples](#code-examples) section, then run:
-
-```bash
-# Using Node.js directly
-npx ts-node example.ts
-
-# Or compile first
-tsc example.ts
-node example.js
-```
-
-### Using npm Scripts (Recommended)
-
-Add these scripts to your `package.json`:
-
-```json
-{
-  "scripts": {
-    "connect": "ts-node connect-notion.ts",
-    "example": "ts-node example.ts",
-    "build": "tsc"
-  }
-}
-```
-
-Then run:
-```bash
-npm run connect    # Run OAuth flow
-npm run example     # Run API examples
-```
-
-### Quick Test Commands
-
-```bash
-# 1. Connect Notion via OAuth
-npm run connect
-
-# 2. After getting Connection ID, add it to .env file
-# CONNECTION_ID=your_connection_id_here
-
-# 3. Run example script
-npm run example
-```
-
-### Troubleshooting
-
-**"Cannot find module" errors:**
-- Make sure all files are in the same directory
-- Use `.js` extension in imports: `import { getConfig } from './config.js'`
-- Run `npm install axios dotenv` if not already installed
-
-**"Connection ID not set" errors:**
-- Complete OAuth flow first: `npm run connect`
-- Add `CONNECTION_ID` to your `.env` file
-- Restart your terminal/application after updating `.env`
-
-**Port 3000 already in use:**
-- Change the port in `connect-notion.ts` (e.g., `server.listen(3001)`)
-- Update redirect URI in `.env` to match: `OAUTH_REDIRECT_URI=http://localhost:3001/oauth/callback`
-
-## Authentication
+## OAuth Connection
 
 Alloy uses OAuth 2.0 for connecting third-party services. The authentication flow consists of two main steps:
 
@@ -394,6 +312,35 @@ async function connectNotion() {
 connectNotion();
 ```
 
+### Connection Methods
+
+**Method 1: Command Line**
+```bash
+npm run connect-notion
+```
+
+**Method 2: List Existing Connections**
+```bash
+npm run list-connections notion
+```
+
+**Method 3: Web Interface**
+```bash
+npm run server
+# Then visit http://localhost:3000
+```
+
+### Connection ID Format
+
+- 24 characters (hexadecimal)
+- Example: `690ff6ff2472d76a35e7ebaa`
+- Format: `[a-f0-9]{24}`
+
+After getting your Connection ID, add it to `.env`:
+```env
+CONNECTION_ID=your_connection_id_here
+```
+
 ## API Usage
 
 Once you have a Connection ID, you can make API calls to the connected service through Alloy's Connectivity API.
@@ -498,13 +445,127 @@ export class NotionClient {
 
 ## Code Examples
 
-### Example 1: Complete Read and Write Flow
+### Basic Setup
 
 ```typescript
-// example.ts
 import { NotionClient } from './notion-client.js';
 import { getConfig } from './config.js';
 
+const config = getConfig();
+const connectionId = process.env.CONNECTION_ID!;
+const notionClient = new NotionClient(config, connectionId);
+```
+
+### Read Operations
+
+**Search Pages:**
+```typescript
+// Search all pages
+const pages = await notionClient.searchPages();
+
+// Search with query
+const pages = await notionClient.searchPages('Project Planning');
+
+// Search databases only
+const databases = await notionClient.searchPages(undefined, {
+  value: 'database',
+  property: 'object'
+});
+```
+
+**Get Page:**
+```typescript
+const page = await notionClient.getPage('page-id-here');
+```
+
+**Query Database:**
+```typescript
+const results = await notionClient.queryDatabase('database-id-here', {
+  filter: {
+    property: 'Status',
+    select: { equals: 'Done' }
+  }
+});
+```
+
+### Write Operations
+
+**Create Page (Simple):**
+```typescript
+const newPage = await notionClient.createPage({
+  parent: {
+    type: 'workspace',
+    workspace: true
+  },
+  properties: {
+    title: {
+      type: 'title',
+      title: [{ type: 'text', text: { content: 'My Page Title' } }]
+    }
+  }
+});
+```
+
+**Create Page Under Another Page:**
+```typescript
+const newPage = await notionClient.createPage({
+  parent: {
+    type: 'page_id',
+    page_id: 'parent-page-id-here'
+  },
+  properties: {
+    title: {
+      type: 'title',
+      title: [{ type: 'text', text: { content: 'Child Page' } }]
+    }
+  }
+});
+```
+
+**Create Page in Database:**
+```typescript
+const newPage = await notionClient.createPage({
+  parent: {
+    type: 'database_id',
+    database_id: 'database-id-here'
+  },
+  properties: {
+    'Task Name': {
+      type: 'title',
+      title: [{ type: 'text', text: { content: 'Complete project' } }]
+    },
+    'Status': {
+      type: 'select',
+      select: { name: 'In Progress' }
+    }
+  }
+});
+```
+
+### Update Operations
+
+**Update Page:**
+```typescript
+const updatedPage = await notionClient.updatePage('page-id-here', {
+  properties: {
+    title: {
+      type: 'title',
+      title: [{ type: 'text', text: { content: 'Updated Title' } }]
+    }
+  }
+});
+```
+
+**Archive Page:**
+```typescript
+await notionClient.updatePage('page-id-here', {
+  archived: true
+});
+```
+
+### Complete Example: Read, Write, Update
+
+```typescript
 async function completeExample() {
   try {
     const config = getConfig();
@@ -546,7 +607,6 @@ async function completeExample() {
       },
     });
     console.log(`Page created: ${newPage.id}`);
-    console.log(`URL: ${newPage.url}`);
 
     // 3. Update: Modify the page
     console.log('\nUpdating the page...');
@@ -575,58 +635,63 @@ async function completeExample() {
     process.exit(1);
   }
 }
-
-completeExample();
 ```
 
-### Example 2: List All Connections
+### Common Property Types
 
+**Title:**
 ```typescript
-// list-connections.ts
-import { AlloyOAuthFlow } from './oauth-flow.js';
-
-async function listConnections() {
-  try {
-    const oauthFlow = new AlloyOAuthFlow();
-    const connections = await oauthFlow.listConnections();
-
-    console.log(`Found ${connections.length} connection(s)\n`);
-
-    connections.forEach((conn: any, index: number) => {
-      console.log(`Connection ${index + 1}:`);
-      console.log(`  ID: ${conn.id || conn.credentialId || conn.connectionId}`);
-      console.log(`  Connector: ${conn.connectorId || 'N/A'}`);
-      console.log('');
-    });
-
-    const notionConnections = connections.filter(
-      (conn: any) => conn.connectorId === 'notion'
-    );
-
-    if (notionConnections.length > 0) {
-      const mostRecent = notionConnections[0];
-      const connectionId = mostRecent.id || mostRecent.credentialId;
-      console.log(`Recommended: CONNECTION_ID=${connectionId}`);
-    }
-
-  } catch (error: any) {
-    console.error('Error:', error.message);
-    if (error.response?.data) {
-      console.error('API Error:', JSON.stringify(error.response.data, null, 2));
-    }
-    process.exit(1);
-  }
+title: {
+  type: 'title',
+  title: [{ type: 'text', text: { content: 'My Title' } }]
 }
+```
 
-listConnections();
+**Rich Text:**
+```typescript
+description: {
+  type: 'rich_text',
+  rich_text: [{ type: 'text', text: { content: 'My description' } }]
+}
+```
+
+**Select:**
+```typescript
+status: {
+  type: 'select',
+  select: { name: 'In Progress' }
+}
+```
+
+**Date:**
+```typescript
+dueDate: {
+  type: 'date',
+  date: { start: '2024-12-31' }
+}
+```
+
+**Number:**
+```typescript
+priority: {
+  type: 'number',
+  number: 5
+}
+```
+
+**Checkbox:**
+```typescript
+completed: {
+  type: 'checkbox',
+  checkbox: true
+}
 ```
 
 ## Error Handling
 
 ### Common Error Types
 
-#### Authentication Errors
-
+**Authentication Errors:**
 ```typescript
 try {
   await notionClient.searchPages();
@@ -639,8 +704,7 @@ try {
 }
 ```
 
-#### Connection Errors
-
+**Connection Errors:**
 ```typescript
 try {
   await notionClient.searchPages();
@@ -654,8 +718,7 @@ try {
 }
 ```
 
-#### Rate Limiting
-
+**Rate Limiting:**
 ```typescript
 async function withRetry<T>(
   operation: () => Promise<T>,
@@ -692,10 +755,10 @@ const pages = await withRetry(() => notionClient.searchPages());
 **"Credential not found" or "Invalid Authorization"**
 - Verify Connection ID: Run OAuth flow again or check Alloy Dashboard
 - Check API credentials are correct
-- Ensure you're using production credentials
+- List connections: `npm run list-connections notion`
 
 **"Connection not yet established"**
-- Complete OAuth flow first
+- Complete OAuth flow first: `npm run connect-notion`
 - Add Connection ID to `.env` file
 - Verify connection works with a test API call
 
@@ -703,6 +766,14 @@ const pages = await withRetry(() => notionClient.searchPages());
 - Implement retry logic with exponential backoff
 - Reduce request frequency
 - Batch operations when possible
+
+**"Cannot find module" errors:**
+- Use `.js` extension in imports: `import { getConfig } from './config.js'`
+- Run `npm install axios dotenv` if not already installed
+
+**Port 3000 already in use:**
+- Change the port in `connect-notion.ts` (e.g., `server.listen(3001)`)
+- Update redirect URI in `.env` to match: `OAUTH_REDIRECT_URI=http://localhost:3001/oauth/callback`
 
 ## API Reference
 
@@ -844,4 +915,3 @@ POST /connectors/{connectorId}/actions/{actionId}
 
 **Last Updated**: December 2024  
 **Version**: 1.0.0
-
